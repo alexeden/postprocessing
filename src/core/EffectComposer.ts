@@ -164,12 +164,12 @@ export class EffectComposer implements Disposable, Resizable {
    * separate depth textures are used.
    */
 
-  private createDepthTexture() {
-    const depthTexture = new DepthTexture();
+  private createDepthTexture(width: number, height: number) {
+    const depthTexture = new DepthTexture(width, height);
 
     if (this.inputBuffer!.stencilBuffer) {
       depthTexture.format = DepthStencilFormat;
-      depthTexture.type = UnsignedInt248Type;
+      (depthTexture as any).type = UnsignedInt248Type;
     }
 
     this.inputBuffer!.depthTexture = depthTexture;
@@ -235,7 +235,7 @@ export class EffectComposer implements Disposable, Resizable {
 
     if (pass.needsDepthTexture) {
       if (this.inputBuffer!.depthTexture === null) {
-        this.createDepthTexture();
+        this.createDepthTexture(drawingBufferSize.width, drawingBufferSize.height);
       }
 
       pass.setDepthTexture(this.getDepthTexture(index)!);
@@ -254,11 +254,10 @@ export class EffectComposer implements Disposable, Resizable {
    * @param delta - The time between the last frame and the current one in seconds.
    */
   render(delta: number) {
-    const renderer = this.renderer;
     const copyPass = this.copyPass;
 
-    let inputBuffer = this.inputBuffer;
-    let outputBuffer = this.outputBuffer;
+    let inputBuffer = this.inputBuffer!;
+    let outputBuffer = this.outputBuffer!;
 
     let stencilTest = false;
     let context;
@@ -267,15 +266,15 @@ export class EffectComposer implements Disposable, Resizable {
 
     for (const pass of this.passes) {
       if (pass.enabled) {
-        pass.render(renderer, inputBuffer, outputBuffer, delta, stencilTest);
+        pass.render(this.renderer!, inputBuffer, outputBuffer, delta, stencilTest);
         if (pass.needsSwap) {
           if (stencilTest) {
             copyPass.renderToScreen = pass.renderToScreen;
-            context = renderer.context;
-            state = renderer.state;
+            context = this.renderer!.context;
+            state = this.renderer!.state;
             // Preserve the unaffected pixels.
             state.buffers.stencil.setFunc(context.NOTEQUAL, 1, 0xffffffff);
-            copyPass.render(renderer, inputBuffer, outputBuffer, delta, stencilTest);
+            copyPass.render(this.renderer!, inputBuffer, outputBuffer, delta, stencilTest);
             state.buffers.stencil.setFunc(context.EQUAL, 1, 0xffffffff);
           }
 
@@ -303,11 +302,7 @@ export class EffectComposer implements Disposable, Resizable {
    * If no width or height is specified, the render targets and passes will be
    * updated with the current size of the renderer.
    */
-
   setSize(width?: number, height?: number) {
-
-    const renderer = this.renderer;
-
     let size;
 
     if (width === undefined || height === undefined) {
@@ -322,15 +317,12 @@ export class EffectComposer implements Disposable, Resizable {
     // The drawing buffer size takes the device pixel ratio into account.
     const drawingBufferSize = this.renderer!.getDrawingBufferSize();
 
-    this.inputBuffer.setSize(drawingBufferSize.width, drawingBufferSize.height);
-    this.outputBuffer.setSize(drawingBufferSize.width, drawingBufferSize.height);
+    this.inputBuffer!.setSize(drawingBufferSize.width, drawingBufferSize.height);
+    this.outputBuffer!.setSize(drawingBufferSize.width, drawingBufferSize.height);
 
     for (const pass of this.passes) {
-
       pass.setSize(drawingBufferSize.width, drawingBufferSize.height);
-
     }
-
   }
 
   /**
@@ -338,7 +330,6 @@ export class EffectComposer implements Disposable, Resizable {
    */
 
   reset() {
-
     const renderTarget = this.createBuffer(
       this.inputBuffer!.depthBuffer,
       this.inputBuffer!.stencilBuffer
@@ -350,7 +341,6 @@ export class EffectComposer implements Disposable, Resizable {
     this.inputBuffer = renderTarget;
     this.outputBuffer = renderTarget.clone();
     this.copyPass = new ShaderPass(new CopyMaterial());
-
   }
 
   /**
@@ -361,31 +351,21 @@ export class EffectComposer implements Disposable, Resizable {
    */
 
   dispose() {
-
-    for (const pass of this.passes) {
-
-      pass.dispose();
-
-    }
+    for (const pass of this.passes) pass.dispose();
 
     this.passes = [];
 
     if (this.inputBuffer !== null) {
-
       this.inputBuffer.dispose();
       this.inputBuffer = null;
-
     }
 
     if (this.outputBuffer !== null) {
-
       this.outputBuffer.dispose();
       this.outputBuffer = null;
-
     }
 
     this.copyPass.dispose();
-
   }
 
 }
