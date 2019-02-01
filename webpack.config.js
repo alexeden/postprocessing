@@ -17,7 +17,7 @@ module.exports = {
 	},
 
 	entry: {
-		postprocessing: "./index.ts"
+		postprocessing: "./postprocessing.ts"
 	},
 
 	output: {

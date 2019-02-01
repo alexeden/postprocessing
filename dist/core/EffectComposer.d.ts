@@ -99,7 +99,7 @@ export declare class EffectComposer implements Disposable, Resizable {
      * @param pass - A new pass.
      * @param index - An index at which the pass should be inserted.
      */
-    addPass(pass: Pass, index: number): void;
+    addPass(pass: Pass, index?: number): void;
     /**
      * Removes a pass.
      */

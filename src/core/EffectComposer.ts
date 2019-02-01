@@ -214,7 +214,7 @@ export class EffectComposer implements Disposable, Resizable {
 
   addPass(
     pass: Pass,
-    index: number
+    index?: number
   ) {
     const drawingBufferSize = this.renderer!.getDrawingBufferSize();
 
