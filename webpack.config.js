@@ -17,8 +17,7 @@ module.exports = {
 	},
 
 	entry: {
-		bundle: "./index.ts",
-		"bundle.min": "./index.ts"
+		postprocessing: "./index.ts"
 	},
 
 	output: {

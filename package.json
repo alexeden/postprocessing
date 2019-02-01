@@ -3,8 +3,8 @@
 	"version": "5.5.0",
 	"description": "A post processing library that provides the means to implement image filter effects for three.js.",
 	"homepage": "https://github.com/vanruesc/postprocessing",
-	"main": "build/postprocessing.js",
-	"module": "src/index.js",
+	"main": "dist/postprocessing.js",
+	"module": "src/index.ts",
 	"sideEffects": false,
 	"license": "Zlib",
 	"keywords": [
@@ -36,7 +36,7 @@
 	},
 	"files": [
 		"src",
-		"build"
+		"dist"
 	],
 	"scripts": {
 		"ava": "ava",
@@ -45,7 +45,7 @@
 		"lint:lib": "eslint src",
 		"lint:demo": "eslint demo/src",
 		"lint:test": "eslint test",
-		"build": "rimraf dist && tsc -p src",
+		"build": "rimraf dist && webpack",
 		"xbuild": "rollup -c",
 		"build:production": "cross-env NODE_ENV=production npm run build",
 		"doc": "rimraf public/docs && esdoc",
@@ -53,6 +53,7 @@
 		"pretest": "npm run lint && npm run build:production",
 		"test": "npm run ava",
 		"prepack": "npm test && inline-import",
+		"postinstall": "npm run build",
 		"postpublish": "inline-import -r"
 	},
 	"ava": {
@@ -65,7 +66,7 @@
 		"extends": "delta"
 	},
 	"peerDependencies": {
-		"three": ">= 0.87.0 < 0.101.0"
+		"three": ">= 0.87.0 <= 0.101.0"
 	},
 	"devDependencies": {
 		"@babel/core": "7.x.x",
