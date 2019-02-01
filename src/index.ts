@@ -4,76 +4,12 @@
  * @module postprocessing
  */
 
-export {
-  Disposable,
-  Initializable,
-  EffectComposer,
-  Resizable,
-} from './core';
+export * from './core';
 
-export {
-  BlendFunction,
-  BlendMode,
-  BloomEffect,
-  BokehEffect,
-  BrightnessContrastEffect,
-  ColorAverageEffect,
-  ChromaticAberrationEffect,
-  DepthEffect,
-  DotScreenEffect,
-  Effect,
-  EffectAttribute,
-  GammaCorrectionEffect,
-  GlitchEffect,
-  GlitchMode,
-  GodRaysEffect,
-  GridEffect,
-  HueSaturationEffect,
-  NoiseEffect,
-  OutlineEffect,
-  PixelationEffect,
-  RealisticBokehEffect,
-  ScanlineEffect,
-  ShockWaveEffect,
-  SepiaEffect,
-  SMAAEffect,
-  SSAOEffect,
-  TextureEffect,
-  ToneMappingEffect,
-  VignetteEffect,
-  WebGLExtension,
-} from './effects';
+export * from './effects';
 
-export {
-  RawImageData,
-  SMAAAreaImageData,
-  SMAASearchImageData,
-} from './images';
+// export * from './images';
 
-export {
-  AdaptiveLuminanceMaterial,
-  ColorEdgesMaterial,
-  ConvolutionMaterial,
-  CopyMaterial,
-  DepthComparisonMaterial,
-  EffectMaterial,
-  GodRaysMaterial,
-  KernelSize,
-  LuminanceMaterial,
-  OutlineEdgesMaterial,
-  SMAAWeightsMaterial,
-} from './materials';
+export * from './materials';
 
-export {
-  BlurPass,
-  ClearPass,
-  ClearMaskPass,
-  DepthPass,
-  EffectPass,
-  MaskPass,
-  NormalPass,
-  Pass,
-  RenderPass,
-  SavePass,
-  ShaderPass,
-} from './passes';
+export * from './passes';
