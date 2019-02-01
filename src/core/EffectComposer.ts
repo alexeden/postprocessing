@@ -249,8 +249,6 @@ export class EffectComposer implements Disposable, Resizable {
    * @param delta - The time between the last frame and the current one in seconds.
    */
   render(delta: number) {
-    const copyPass = this.copyPass;
-
     let inputBuffer = this.inputBuffer!;
     let outputBuffer = this.outputBuffer!;
 
@@ -264,12 +262,12 @@ export class EffectComposer implements Disposable, Resizable {
         pass.render(this.renderer!, inputBuffer, outputBuffer, delta, stencilTest);
         if (pass.needsSwap) {
           if (stencilTest) {
-            copyPass.renderToScreen = pass.renderToScreen;
+            this.copyPass.renderToScreen = pass.renderToScreen;
             context = this.renderer!.context;
             state = this.renderer!.state;
             // Preserve the unaffected pixels.
             state.buffers.stencil.setFunc(context.NOTEQUAL, 1, 0xffffffff);
-            copyPass.render(this.renderer!, inputBuffer, outputBuffer, delta, stencilTest);
+            this.copyPass.render(this.renderer!, inputBuffer, outputBuffer);
             state.buffers.stencil.setFunc(context.EQUAL, 1, 0xffffffff);
           }
 
