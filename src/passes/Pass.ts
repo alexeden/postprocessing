@@ -8,6 +8,7 @@ import {
   Texture,
   Camera,
   Material,
+  IUniform,
 } from 'three';
 import {
   Disposable,
@@ -23,7 +24,9 @@ import { PassName } from './lib';
  * depth test and depth write in their respective shader materials.
  */
 export abstract class Pass implements Disposable, Initializable, Resizable {
-  [k: string]: any;
+  // [k: string]: any;
+  protected uniform: IUniform | null = null;
+
   /**
    * A quad mesh that fills the screen.
    */
@@ -102,8 +105,8 @@ export abstract class Pass implements Disposable, Initializable, Resizable {
    * @param - A fullscreen material.
    */
 
-  protected setFullscreenMaterial(
-    material: Material
+  protected setFullscreenMaterial<M extends Material>(
+    material: M
   ) {
     if (this.quad !== null) {
       this.quad.material = material;
@@ -212,8 +215,11 @@ export abstract class Pass implements Disposable, Initializable, Resizable {
    */
   dispose() {
     this.getFullscreenMaterials().forEach(material => material.dispose());
-    Object.keys(this)
-      .map(prop => this[prop])
+    /**
+     * @todo: Find a less sketchy (see: type safer) way of doing this
+     */
+    Object.keys(this as any)
+      .map(prop => (this as any)[prop])
       .filter((value): value is Disposable =>
         value !== null
         && typeof value === 'object'

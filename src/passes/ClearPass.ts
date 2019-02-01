@@ -19,6 +19,8 @@ export interface ClearPassOptions {
 export class ClearPass extends Pass {
   /** Used for saving the original clear color of the renderer. */
   private static color = new Color();
+  clearColor: Color | null;
+  clearAlpha: number;
 
   /**
    * Constructs a new clear pass.
