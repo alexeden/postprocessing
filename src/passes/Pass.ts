@@ -14,6 +14,7 @@ import {
   Initializable,
   Resizable,
 } from '../core';
+import { PassName } from './lib';
 
 /**
  * An abstract pass.
@@ -65,7 +66,7 @@ export abstract class Pass implements Disposable, Initializable, Resizable {
    * @param - The camera. The default camera perfectly captures the screen mesh.
    */
   constructor(
-    protected readonly name = 'Pass',
+    protected readonly name: PassName,
     protected readonly scene = new Scene(),
     protected readonly camera: Camera = new OrthographicCamera(-1, 1, 1, -1, 0, 1)
   ) { }
