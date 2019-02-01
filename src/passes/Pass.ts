@@ -143,11 +143,11 @@ export abstract class Pass implements Disposable, Initializable, Resizable {
    *
    * This is an abstract method that must be overridden.
    *
-   * @param renderer - The renderer.
-   * @param inputBuffer - A frame buffer that contains the result of the previous pass.
-   * @param outputBuffer - A frame buffer that serves as the output render target unless this pass renders to screen.
-   * @param delta - The time between the last frame and the current one in seconds.
-   * @param stencilTest - Indicates whether a stencil mask is active.
+   * @param renderer The renderer.
+   * @param inputBuffer A frame buffer that contains the result of the previous pass.
+   * @param outputBuffer A frame buffer that serves as the output render target unless this pass renders to screen.
+   * @param delta The time between the last frame and the current one in seconds.
+   * @param stencilTest Indicates whether a stencil mask is active.
    */
   abstract render(
     renderer: WebGLRenderer,

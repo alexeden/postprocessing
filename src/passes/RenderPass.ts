@@ -66,16 +66,10 @@ export class RenderPass extends Pass {
    *
    * @param renderer The renderer.
    * @param inputBuffer A frame buffer that contains the result of the previous pass.
-   * @param outputBuffer A frame buffer that serves as the output render target unless this pass renders to screen.
-   * @param delta The time between the last frame and the current one in seconds.
-   * @param stencilTest Indicates whether a stencil mask is active.
    */
   render(
     renderer: WebGLRenderer,
-    inputBuffer: WebGLRenderTarget,
-    outputBuffer: WebGLRenderTarget,
-    delta: number,
-    stencilTest: boolean
+    inputBuffer: WebGLRenderTarget
   ) {
     const scene = this.scene;
     const renderTarget = this.renderToScreen ? undefined : inputBuffer;
