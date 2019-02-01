@@ -83,6 +83,7 @@
 		"eslint-config-delta": "0.x.x",
 		"inline-import": "1.x.x",
 		"math-ds": "1.x.x",
+		"raw-loader": "^1.0.0",
 		"rimraf": "2.x.x",
 		"rollup": "1.x.x",
 		"rollup-plugin-babel": "4.x.x",
