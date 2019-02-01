@@ -1,6 +1,7 @@
 import { Matrix4, Uniform, Vector2 } from "three";
 import { BlendFunction } from "./blending/BlendFunction";
-import { Effect, EffectAttribute } from "./Effect";
+import { EffectAttribute } from "./lib";
+import { Effect } from "./Effect";
 
 import fragment from "./glsl/ssao/shader.frag";
 

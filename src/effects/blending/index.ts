@@ -3,5 +3,5 @@
  *
  * @module postprocessing/blending
  */
-export { BlendFunction } from './BlendFunction.js';
-export { BlendMode } from './BlendMode.js';
+export { BlendFunction } from './BlendFunction';
+export { BlendMode } from './BlendMode';

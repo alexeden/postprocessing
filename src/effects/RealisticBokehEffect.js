@@ -1,6 +1,7 @@
 import { Uniform, Vector4 } from "three";
 import { BlendFunction } from "./blending/BlendFunction";
-import { Effect, EffectAttribute } from "./Effect";
+import { EffectAttribute } from "./lib";
+import { Effect } from "./Effect";
 
 import fragment from "./glsl/realistic-bokeh/shader.frag";
 

@@ -3,13 +3,13 @@
  *
  * @module postprocessing/materials
  */
-export { AdaptiveLuminanceMaterial } from './AdaptiveLuminanceMaterial.js';
-export { ColorEdgesMaterial } from './ColorEdgesMaterial.js';
-export { ConvolutionMaterial, KernelSize } from './ConvolutionMaterial.js';
-export { CopyMaterial } from './CopyMaterial.js';
-export { DepthComparisonMaterial } from './DepthComparisonMaterial.js';
-export { EffectMaterial, Section } from './EffectMaterial.js';
-export { GodRaysMaterial } from './GodRaysMaterial.js';
-export { LuminanceMaterial } from './LuminanceMaterial.js';
-export { OutlineEdgesMaterial } from './OutlineEdgesMaterial.js';
-export { SMAAWeightsMaterial } from './SMAAWeightsMaterial.js';
+export { AdaptiveLuminanceMaterial } from './AdaptiveLuminanceMaterial';
+export { ColorEdgesMaterial } from './ColorEdgesMaterial';
+export { ConvolutionMaterial, KernelSize } from './ConvolutionMaterial';
+export { CopyMaterial } from './CopyMaterial';
+export { DepthComparisonMaterial } from './DepthComparisonMaterial';
+export { EffectMaterial, Section } from './EffectMaterial';
+export { GodRaysMaterial } from './GodRaysMaterial';
+export { LuminanceMaterial } from './LuminanceMaterial';
+export { OutlineEdgesMaterial } from './OutlineEdgesMaterial';
+export { SMAAWeightsMaterial } from './SMAAWeightsMaterial';

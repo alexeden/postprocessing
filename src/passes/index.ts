@@ -3,14 +3,14 @@
  *
  * @module postprocessing/passes
  */
-export { BlurPass } from './BlurPass.js';
-export { ClearMaskPass } from './ClearMaskPass.js';
-export { ClearPass } from './ClearPass.js';
-export { DepthPass } from './DepthPass.js';
-export { EffectPass } from './EffectPass.js';
-export { MaskPass } from './MaskPass.js';
-export { NormalPass } from './NormalPass.js';
-export { Pass } from './Pass.js';
-export { RenderPass } from './RenderPass.js';
-export { SavePass } from './SavePass.js';
-export { ShaderPass } from './ShaderPass.js';
+export { BlurPass } from './BlurPass';
+export { ClearMaskPass } from './ClearMaskPass';
+export { ClearPass } from './ClearPass';
+export { DepthPass } from './DepthPass';
+export { EffectPass } from './EffectPass';
+export { MaskPass } from './MaskPass';
+export { NormalPass } from './NormalPass';
+export { Pass } from './Pass';
+export { RenderPass } from './RenderPass';
+export { SavePass } from './SavePass';
+export { ShaderPass } from './ShaderPass';

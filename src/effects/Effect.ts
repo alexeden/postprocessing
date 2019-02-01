@@ -5,10 +5,8 @@ import {
   EffectAttribute,
   EffectName,
   EffectOptions,
-  FragmentShader,
   PreprocessorMacros,
   ShaderUniforms,
-  VertexShader,
   WebGLExtension,
 } from './lib';
 

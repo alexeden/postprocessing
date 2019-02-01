@@ -12,7 +12,8 @@ import {
 import { ColorEdgesMaterial, SMAAWeightsMaterial } from "../materials";
 import { ClearPass, ShaderPass } from "../passes";
 import { BlendFunction } from "./blending/BlendFunction";
-import { Effect, EffectAttribute } from "./Effect";
+import { EffectAttribute } from "./lib";
+import { Effect } from "./Effect";
 
 import searchImageDataURL from "../images/smaa/searchImageDataURL";
 import areaImageDataURL from "../images/smaa/areaImageDataURL";

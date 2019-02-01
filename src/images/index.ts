@@ -3,7 +3,7 @@
  *
  * @module postprocessing/images
  */
-export { SMAAAreaImageData } from './smaa/utils/SMAAAreaImageData.js';
-export { SMAASearchImageData } from './smaa/utils/SMAASearchImageData.js';
+export { SMAAAreaImageData } from './smaa/utils/SMAAAreaImageData';
+export { SMAASearchImageData } from './smaa/utils/SMAASearchImageData';
 
-export { RawImageData } from './RawImageData.js';
+export { RawImageData } from './RawImageData';

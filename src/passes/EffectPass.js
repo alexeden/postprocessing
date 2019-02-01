@@ -1,5 +1,5 @@
 import { BlendFunction } from "../effects/blending";
-import { EffectAttribute } from "../effects/Effect";
+import { EffectAttribute } from "../effects";
 import { EffectMaterial, Section } from "../materials";
 import { Pass } from "./Pass";
 
