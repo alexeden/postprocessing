@@ -7,8 +7,8 @@ import {
 	WebGLRenderTarget
 } from "three";
 
-import { Pass } from "./Pass.js";
-import { RenderPass } from "./RenderPass.js";
+import { Pass } from "./Pass";
+import { RenderPass } from "./RenderPass";
 
 /**
  * A pass that renders the depth of a given scene.

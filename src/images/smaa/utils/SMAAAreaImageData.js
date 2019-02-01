@@ -1,5 +1,5 @@
 import { Box2, Vector2 } from "three";
-import { RawImageData } from "../../RawImageData.js";
+import { RawImageData } from "../../RawImageData";
 
 /**
  * A box.

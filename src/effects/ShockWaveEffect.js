@@ -1,5 +1,5 @@
 import { Uniform, Vector2, Vector3 } from "three";
-import { Effect } from "./Effect.js";
+import { Effect } from "./Effect";
 
 import fragment from "./glsl/shock-wave/shader.frag";
 import vertex from "./glsl/shock-wave/shader.vert";

@@ -12,8 +12,8 @@ import {
 
 import { KernelSize, GodRaysMaterial } from "../materials";
 import { BlurPass, RenderPass, ShaderPass } from "../passes";
-import { BlendFunction } from "./blending/BlendFunction.js";
-import { Effect } from "./Effect.js";
+import { BlendFunction } from "./blending/BlendFunction";
+import { Effect } from "./Effect";
 
 import fragment from "./glsl/texture/shader.frag";
 

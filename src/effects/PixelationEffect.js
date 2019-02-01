@@ -1,5 +1,5 @@
 import { Uniform, Vector2 } from "three";
-import { Effect } from "./Effect.js";
+import { Effect } from "./Effect";
 
 import fragment from "./glsl/pixelation/shader.frag";
 

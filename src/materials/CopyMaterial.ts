@@ -7,9 +7,6 @@ import vertex from './glsl/copy/shader.vert';
  * A simple copy shader material.
  */
 export class CopyMaterial extends ShaderMaterial {
-  /**
-   * Constructs a new copy material.
-   */
   constructor() {
     super({
       uniforms: {

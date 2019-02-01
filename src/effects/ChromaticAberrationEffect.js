@@ -1,6 +1,6 @@
 import { Uniform, Vector2 } from "three";
-import { BlendFunction } from "./blending/BlendFunction.js";
-import { Effect, EffectAttribute } from "./Effect.js";
+import { BlendFunction } from "./blending/BlendFunction";
+import { Effect, EffectAttribute } from "./Effect";
 
 import fragment from "./glsl/chromatic-aberration/shader.frag";
 import vertex from "./glsl/chromatic-aberration/shader.vert";

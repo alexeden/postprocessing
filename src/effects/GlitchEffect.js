@@ -8,8 +8,8 @@ import {
 	Vector2
 } from "three";
 
-import { BlendFunction } from "./blending/BlendFunction.js";
-import { Effect } from "./Effect.js";
+import { BlendFunction } from "./blending/BlendFunction";
+import { Effect } from "./Effect";
 
 import fragment from "./glsl/glitch/shader.frag";
 

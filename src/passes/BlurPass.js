@@ -1,6 +1,6 @@
 import { LinearFilter, RGBFormat, Vector2, WebGLRenderTarget } from "three";
 import { ConvolutionMaterial, KernelSize } from "../materials";
-import { Pass } from "./Pass.js";
+import { Pass } from "./Pass";
 
 /**
  * An efficient, incremental blur pass.

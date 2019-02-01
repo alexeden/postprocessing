@@ -11,11 +11,11 @@ import {
 
 import { ColorEdgesMaterial, SMAAWeightsMaterial } from "../materials";
 import { ClearPass, ShaderPass } from "../passes";
-import { BlendFunction } from "./blending/BlendFunction.js";
-import { Effect, EffectAttribute } from "./Effect.js";
+import { BlendFunction } from "./blending/BlendFunction";
+import { Effect, EffectAttribute } from "./Effect";
 
-import searchImageDataURL from "../images/smaa/searchImageDataURL.js";
-import areaImageDataURL from "../images/smaa/areaImageDataURL.js";
+import searchImageDataURL from "../images/smaa/searchImageDataURL";
+import areaImageDataURL from "../images/smaa/areaImageDataURL";
 
 import fragment from "./glsl/smaa/shader.frag";
 import vertex from "./glsl/smaa/shader.vert";
