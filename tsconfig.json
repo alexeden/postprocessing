@@ -10,7 +10,7 @@
     "lib": [
       "esnext"
     ],
-    "module": "commonjs",
+    "module": "esnext",
     "moduleResolution": "node",
     "noImplicitAny": true,
     "noImplicitReturns": true,
