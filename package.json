@@ -72,6 +72,7 @@
 		"@babel/preset-env": "7.x.x",
 		"@types/three": "^0.93.19",
 		"ava": "1.x.x",
+		"babel-loader": "^8.0.5",
 		"cpx": "1.x.x",
 		"cross-env": "5.x.x",
 		"dat.gui": "0.x.x",
@@ -93,7 +94,11 @@
 		"three": "0.100.x",
 		"three-demo": "3.x.x",
 		"three-gltf-loader": "1.100.x",
+		"ts-loader": "^5.3.3",
 		"tslint": "^5.12.1",
-		"typescript": "^3.2.4"
+		"tslint-loader": "^3.5.4",
+		"typescript": "^3.2.4",
+		"webpack": "^4.29.0",
+		"webpack-cli": "^3.2.1"
 	}
 }
