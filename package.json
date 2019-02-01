@@ -47,7 +47,7 @@
 		"lint:test": "eslint test",
 		"build": "rimraf dist && tsc -p src",
 		"xbuild": "rollup -c",
-		"xbuild:production": "cross-env NODE_ENV=production npm run build",
+		"build:production": "cross-env NODE_ENV=production npm run build",
 		"doc": "rimraf public/docs && esdoc",
 		"deploy": "cpx demo/assets/** public/demo",
 		"pretest": "npm run lint && npm run build:production",
