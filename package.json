@@ -52,7 +52,6 @@
 		"deploy": "cpx demo/assets/** public/demo",
 		"pretest": "npm run lint && npm run build:production",
 		"test": "npm run ava",
-		"postinstall": "npm run build",
 		"postpublish": "inline-import -r"
 	},
 	"ava": {
