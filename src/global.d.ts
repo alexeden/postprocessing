@@ -1,7 +1,7 @@
 // tslint:disable-next-line:no-empty-interface
-interface VertexShader extends string { }
+type VertexShader = string;
 // tslint:disable-next-line:no-empty-interface
-interface FragmentShader extends string { }
+type FragmentShader = string;
 
 declare module '*.vert' {
   const vert: VertexShader;

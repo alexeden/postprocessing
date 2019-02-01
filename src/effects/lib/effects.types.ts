@@ -5,9 +5,6 @@ export enum EffectName {
   Glitch = 'GlitchEffect',
 }
 
-export type FragmentShader = string;
-export type VertexShader = string;
-
 export type PreprocessorMacros = Map<string, string>;
 export type ShaderUniforms = Map<string, Uniform>;
 
