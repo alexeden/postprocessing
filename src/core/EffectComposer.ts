@@ -36,8 +36,6 @@ interface EffectComposerOptions {
  * processing.
  */
 export class EffectComposer implements Disposable, Resizable {
-
-
   /**
    * The input buffer.
    *
@@ -68,7 +66,7 @@ export class EffectComposer implements Disposable, Resizable {
    */
   constructor(
     private renderer: WebGLRenderer | null = null,
-    partialOptions: Partial<EffectComposerOptions> = {}
+    partialOptions: Partial<EffectComposerOptions> = { }
   ) {
 
     const options: EffectComposerOptions = {
@@ -91,7 +89,7 @@ export class EffectComposer implements Disposable, Resizable {
    *
    * The auto clear mechanism of the provided renderer will be disabled.
    *
-   * @param - The new renderer.
+   * @param renderer New renderer.
    * @return The old renderer.
    */
   replaceRenderer(renderer: WebGLRenderer): WebGLRenderer | null {
@@ -101,7 +99,6 @@ export class EffectComposer implements Disposable, Resizable {
     let newSize;
 
     if (oldRenderer !== null && oldRenderer !== renderer) {
-
       this.renderer = renderer;
       this.renderer.autoClear = false;
 
@@ -110,10 +107,8 @@ export class EffectComposer implements Disposable, Resizable {
       newSize = renderer.getSize();
 
       if (parent !== null) {
-
         parent.removeChild(oldRenderer.domElement);
         parent.appendChild(renderer.domElement);
-
       }
 
       if (oldSize.width !== newSize.width || oldSize.height !== newSize.height) {
@@ -169,7 +164,7 @@ export class EffectComposer implements Disposable, Resizable {
 
     if (this.inputBuffer!.stencilBuffer) {
       depthTexture.format = DepthStencilFormat;
-      (depthTexture as any).type = UnsignedInt248Type;
+      depthTexture.type = UnsignedInt248Type as any;
     }
 
     this.inputBuffer!.depthTexture = depthTexture;
