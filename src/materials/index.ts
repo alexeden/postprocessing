@@ -1,8 +1,3 @@
-/**
- * A collection of shader materials that are used in the post processing passes.
- *
- * @module postprocessing/materials
- */
 // export { AdaptiveLuminanceMaterial } from './AdaptiveLuminanceMaterial';
 // export { ColorEdgesMaterial } from './ColorEdgesMaterial';
 // export { ConvolutionMaterial, KernelSize } from './ConvolutionMaterial';
