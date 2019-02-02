@@ -9,40 +9,25 @@ import { Pass } from './Pass';
  */
 export declare class EffectPass extends Pass implements Disposable, Initializable, Resizable {
     private readonly mainCamera;
-    /**
-     * The effects, sorted by attribute priority, DESC.
-     */
+    /** The effects, sorted by attribute priority, DESC. */
     private readonly effects;
     /**
      * Indicates whether this pass should skip rendering.
      * Effects will still be updated, even if this flag is true.
      */
     private skipRendering;
-    /**
-     * Indicates whether dithering is enabled.
-     */
+    /** Indicates whether dithering is enabled. */
     private quantize;
-    /**
-     * The amount of shader uniforms that this pass uses.
-     */
+    /** The amount of shader uniforms that this pass uses. */
     private uniforms;
-    /**
-     * The amount of shader varyings that this pass uses.
-     */
+    /** The amount of shader varyings that this pass uses. */
     private varyings;
-    /**
-     * A time offset.
-     * Elapsed time will start at this value.
-     */
+    /** A time offset. Elapsed time will start at this value. */
     minTime: number;
-    /**
-     * The maximum time.
-     * If the elapsed time exceeds this value, it will be reset.
-     */
+    /** The maximum time. If the elapsed time exceeds this value, it will be reset. */
     maxTime: number;
     /**
      * Constructs a new effect pass.
-     *
      * The provided effects will be organized and merged for optimal performance.
      *
      * @param camera - The main camera. The camera's type and settings will be available to all effects.

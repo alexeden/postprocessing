@@ -23,7 +23,7 @@ interface EffectComposerOptions {
  * processing.
  */
 export declare class EffectComposer implements Disposable, Resizable {
-    private renderer;
+    renderer: WebGLRenderer | null;
     /**
      * The input buffer.
      *
