@@ -1,5 +1,8 @@
-import { Effect, BlendFunction, BlendMode, EffectAttribute } from '../../effects';
 import { Uniform } from 'three';
+import { Effect, BlendFunction, BlendMode, EffectAttribute } from '../../effects';
+import { Section } from '../../materials';
+import { findSubstrings } from './FindSubstringsUtil';
+import { prefixSubstrings } from './PrefixSubstringsUtils';
 
 export interface IntegratedEffect {
   /** The varyings used by the given effect. */
@@ -38,50 +41,48 @@ export function integrateEffect(
   const blendMode = effect.blendMode;
   const shaders = new Map([
     ['fragment', effect.fragmentShader],
-    ['vertex', effect.vertexShader],
+    ['vertex', effect.vertexShader!],
   ]);
 
-  const mainImageExists = (shaders.get('fragment') !== undefined && shaders.get('fragment').indexOf('mainImage') >= 0);
-  const mainUvExists = (shaders.get('fragment') !== undefined && shaders.get('fragment').indexOf('mainUv') >= 0);
+  const mainImageExists = effect.fragmentShader.includes('mainImage');
+  const mainUvExists = effect.fragmentShader.includes('mainUv');
 
-  let varyings = [], names = [];
+  let varyings: string[] = [];
+  let names: string[] = [];
   let transformedUv = false;
   let readDepth = false;
 
   if (shaders.get('fragment') === undefined) {
-
     console.error('Missing fragment shader', effect);
-
-  } else if (mainUvExists && (attributes & EffectAttribute.CONVOLUTION) !== 0) {
-
+  }
+  else if (mainUvExists && (attributes & EffectAttribute.CONVOLUTION) !== 0) {
     console.error('Effects that transform UV coordinates are incompatible with convolution effects', effect);
-
-  } else if (!mainImageExists && !mainUvExists) {
-
+  }
+  else if (!mainImageExists && !mainUvExists) {
     console.error('The fragment shader contains neither a mainImage nor a mainUv function', effect);
-
-  } else {
-
+  }
+  else {
     if (mainUvExists) {
-
-      shaderParts.set(Section.FRAGMENT_MAIN_UV, shaderParts.get(Section.FRAGMENT_MAIN_UV) +
-        '\t' + prefix + 'MainUv(UV);\n');
+      shaderParts.set(
+        Section.FRAGMENT_MAIN_UV,
+        shaderParts.get(Section.FRAGMENT_MAIN_UV)! + '\t' + prefix + 'MainUv(UV);\n'
+      );
 
       transformedUv = true;
-
     }
 
-    if (shaders.get('vertex') !== null && shaders.get('vertex').indexOf('mainSupport') >= 0) {
+    if (shaders.get('vertex') !== null && shaders.get('vertex')!.indexOf('mainSupport') >= 0) {
+      shaderParts.set(
+        Section.VERTEX_MAIN_SUPPORT,
+        shaderParts.get(Section.VERTEX_MAIN_SUPPORT) + '\t' + prefix + 'MainSupport();\n'
+      );
 
-      shaderParts.set(Section.VERTEX_MAIN_SUPPORT, shaderParts.get(Section.VERTEX_MAIN_SUPPORT) +
-        '\t' + prefix + 'MainSupport();\n');
-
-      varyings = varyings.concat(findSubstrings(varyingRegExp, shaders.get('vertex')));
-      names = names.concat(varyings).concat(findSubstrings(functionRegExp, shaders.get('vertex')));
-
+      varyings = varyings.concat(findSubstrings(varyingRegExp, shaders.get('vertex')!));
+      names = names.concat(varyings).concat(findSubstrings(functionRegExp, shaders.get('vertex')!));
     }
 
-    names = names.concat(findSubstrings(functionRegExp, shaders.get('fragment')))
+    names = names
+      .concat(findSubstrings(functionRegExp, shaders.get('fragment')!))
       .concat(Array.from(effect.uniforms.keys()))
       .concat(Array.from(effect.defines.keys()));
 
@@ -97,48 +98,47 @@ export function integrateEffect(
     blendModes.set(blendMode.blendFunction, blendMode);
 
     if (mainImageExists) {
-
-      let string = prefix + 'MainImage(color0, UV, ';
+      let str = prefix + 'MainImage(color0, UV, ';
 
       // The effect may sample depth in a different shader.
-      if ((attributes & EffectAttribute.DEPTH) !== 0 && shaders.get('fragment').indexOf('depth') >= 0) {
-
-        string += 'depth, ';
+      if ((attributes & EffectAttribute.DEPTH) !== 0 && shaders.get('fragment')!.indexOf('depth') >= 0) {
+        str += 'depth, ';
         readDepth = true;
-
       }
 
-      string += 'color1);\n\t';
+      str += 'color1);\n\t';
 
       // Include the blend opacity uniform of this effect.
       const blendOpacity = prefix + 'BlendOpacity';
       uniforms.set(blendOpacity, blendMode.opacity);
 
       // Blend the result of this effect with the input color.
-      string += 'color0 = blend' + blendMode.blendFunction +
-        '(color0, color1, ' + blendOpacity + ');\n\n\t';
+      str += 'color0 = blend' + blendMode.blendFunction + '(color0, color1, ' + blendOpacity + ');\n\n\t';
 
-      shaderParts.set(Section.FRAGMENT_MAIN_IMAGE,
-                      shaderParts.get(Section.FRAGMENT_MAIN_IMAGE) + string);
+      shaderParts.set(
+        Section.FRAGMENT_MAIN_IMAGE,
+        shaderParts.get(Section.FRAGMENT_MAIN_IMAGE) + str
+      );
 
-      shaderParts.set(Section.FRAGMENT_HEAD, shaderParts.get(Section.FRAGMENT_HEAD) +
-        'uniform float ' + blendOpacity + ';\n\n');
-
+      shaderParts.set(
+        Section.FRAGMENT_HEAD,
+        shaderParts.get(Section.FRAGMENT_HEAD) + 'uniform float ' + blendOpacity + ';\n\n'
+      );
     }
 
     // Include the modified code in the final shader.
-    shaderParts.set(Section.FRAGMENT_HEAD, shaderParts.get(Section.FRAGMENT_HEAD) +
-      shaders.get('fragment') + '\n');
+    shaderParts.set(
+      Section.FRAGMENT_HEAD,
+      shaderParts.get(Section.FRAGMENT_HEAD)! + shaders.get('fragment') + '\n'
+    );
 
     if (shaders.get('vertex') !== null) {
-
-      shaderParts.set(Section.VERTEX_HEAD, shaderParts.get(Section.VERTEX_HEAD) +
-        shaders.get('vertex') + '\n');
-
+      shaderParts.set(
+        Section.VERTEX_HEAD,
+        shaderParts.get(Section.VERTEX_HEAD)! + shaders.get('vertex') + '\n'
+      );
     }
-
   }
 
   return { varyings, transformedUv, readDepth };
-
 }

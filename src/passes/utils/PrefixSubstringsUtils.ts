@@ -6,10 +6,13 @@
  * @param strings - A collection of named strings.
  */
 export function prefixSubstrings(prefix: string, substrings: string[], strings: Map<string, string>) {
-  let prefixed, regExp;
+  let prefixed;
+  let regExp;
 
   for (const substring of substrings) {
+    // tslint:disable-next-line:prefer-template
     prefixed = '$1' + prefix + substring.charAt(0).toUpperCase() + substring.slice(1);
+    // tslint:disable-next-line:prefer-template
     regExp = new RegExp('([^\\.])(\\b' + substring + '\\b)', 'g');
 
     for (const entry of strings.entries()) {
