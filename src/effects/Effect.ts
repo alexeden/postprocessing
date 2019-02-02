@@ -89,7 +89,7 @@ export abstract class Effect implements Initializable, Resizable, Disposable {
    * depth texture that is bound to the associated {@link EffectPass}.
    */
   setDepthTexture(
-    depthTexture: Texture,
+    depthTexture: Texture | null,
     depthPacking = 0
   ) { }
 

@@ -105,6 +105,19 @@ export abstract class Pass implements Disposable, Initializable, Resizable {
   }
 
   /**
+   * Returns the current fullscreen material.
+   *
+   * @return The current fullscreen materials.
+   */
+  getFullscreenMaterialsOfType<T extends PostprocessingMaterial>(
+    type: new (...args: any[]) => T
+  ): T[] {
+    return this.getFullscreenMaterials()
+      .filter<T>((mat): mat is T => mat instanceof type);
+  }
+
+
+  /**
    * Sets the fullscreen material.
    *
    * The material will be assigned to the quad mesh that fills the screen. The

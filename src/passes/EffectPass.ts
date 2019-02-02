@@ -1,6 +1,6 @@
 import { PerspectiveCamera, Camera, Texture, WebGLRenderer, WebGLRenderTarget } from 'three';
-import { BlendFunction } from '../effects/blending';
-import { EffectAttribute, Effect } from '../effects';
+import { Initializable, Resizable, Disposable } from '../core';
+import { BlendFunction, EffectAttribute, Effect } from '../effects';
 import { EffectMaterial, Section } from '../materials';
 import { Pass } from './Pass';
 import { PassName } from './lib';
@@ -13,7 +13,7 @@ import { integrateEffect } from './utils';
  *
  * Use this pass to combine {@link Effect} instances.
  */
-export class EffectPass extends Pass {
+export class EffectPass extends Pass implements Disposable, Initializable, Resizable {
   /**
    * The effects, sorted by attribute priority, DESC.
    */
@@ -65,7 +65,6 @@ export class EffectPass extends Pass {
     private readonly mainCamera: Camera | PerspectiveCamera,
     ...effects: Effect[]
   ) {
-
     super(PassName.Effect);
     this.effects = effects.sort((a, b) => (b.attributes - a.attributes));
     this.setFullscreenMaterial(this.createMaterial());
@@ -151,7 +150,7 @@ export class EffectPass extends Pass {
     for (const blendMode of blendModes.values()) {
       shaderParts.set(
         Section.FRAGMENT_HEAD,
-        shaderParts.get(Section.FRAGMENT_HEAD) + blendMode.getShaderCode().replace(blendRegExp, 'blend' + blendMode.blendFunction) + '\n'
+        `${shaderParts.get(Section.FRAGMENT_HEAD)}${blendMode.getShaderCode().replace(blendRegExp, 'blend' + blendMode.blendFunction)}\n`
       );
     }
 
@@ -206,26 +205,28 @@ export class EffectPass extends Pass {
    * Warning: This method performs a relatively expensive shader recompilation.
    */
   recompile() {
-    let material = this.getFullscreenMaterial();
     let width = 0;
     let height = 0;
     let depthTexture = null;
     let depthPacking = 0;
 
-    if (material !== null) {
-      const resolution = material.uniforms.resolution.value;
-      width = resolution.x; height = resolution.y;
-      depthTexture = material.uniforms.depthBuffer.value;
-      depthPacking = material.depthPacking;
-      material.dispose();
+    this.getFullscreenMaterials()
+      .filter<EffectMaterial>((mat): mat is EffectMaterial => mat instanceof EffectMaterial)
+      .forEach(material => {
+        const resolution = material.uniforms.resolution.value;
+        width = resolution.x;
+        height = resolution.y;
+        depthTexture = material.uniforms.depthBuffer.value;
+        depthPacking = material.depthPacking;
+        material.dispose();
 
-      this.uniforms = 0;
-      this.varyings = 0;
-    }
+        this.uniforms = 0;
+        this.varyings = 0;
+      });
 
-    material = this.createMaterial();
-    material.setSize(width, height);
-    this.setFullscreenMaterial(material);
+    const newMaterial = this.createMaterial();
+    newMaterial.setSize(width, height);
+    this.setFullscreenMaterial(newMaterial);
     this.setDepthTexture(depthTexture, depthPacking);
   }
 
@@ -247,14 +248,14 @@ export class EffectPass extends Pass {
    * @param depthPacking - The depth packing.
    */
   setDepthTexture(
-    depthTexture: Texture,
+    depthTexture: Texture | null,
     depthPacking = 0
   ) {
-    const material = this.getFullscreenMaterial();
-
-    material.uniforms.depthBuffer.value = depthTexture;
-    material.depthPacking = depthPacking;
-    material.needsUpdate = true;
+    this.getFullscreenMaterialsOfType(EffectMaterial).forEach(material => {
+      material.uniforms.depthBuffer.value = depthTexture;
+      material.depthPacking = depthPacking;
+      material.needsUpdate = true;
+    });
 
     for (const effect of this.effects) {
       effect.setDepthTexture(depthTexture, depthPacking);
@@ -301,10 +302,9 @@ export class EffectPass extends Pass {
     width: number,
     height: number
   ) {
-    this.getFullscreenMaterials()
-      .forEach(material => {
-        if ('setSize' in material) material.setSize(width, height);
-      });
+    this.getFullscreenMaterials().forEach(material => {
+      if ('setSize' in material) material.setSize(width, height);
+    });
 
     for (const effect of this.effects) {
       effect.setSize(width, height);
