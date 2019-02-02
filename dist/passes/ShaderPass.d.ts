@@ -1,5 +1,6 @@
-import { ShaderMaterial, WebGLRenderer, WebGLRenderTarget } from 'three';
+import { WebGLRenderer, WebGLRenderTarget } from 'three';
 import { Pass } from './Pass';
+import { PostprocessingMaterial } from '../materials';
 /**
  * A shader pass. Renders any shader material as a fullscreen effect.
  *
@@ -13,7 +14,7 @@ export declare class ShaderPass extends Pass {
      * @param material - A shader material.
      * @param input - The name of the input buffer uniform.
      */
-    constructor(material: ShaderMaterial, input?: string);
+    constructor(material: PostprocessingMaterial, input?: string);
     /**
      * Sets the name of the input buffer uniform.
      *

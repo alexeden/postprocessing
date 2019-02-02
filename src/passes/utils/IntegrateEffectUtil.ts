@@ -1,3 +1,4 @@
+// tslint:disable:prefer-template
 import { Uniform } from 'three';
 import { Effect, BlendFunction, BlendMode, EffectAttribute } from '../../effects';
 import { Section } from '../../materials';

@@ -1,8 +1,3 @@
-/**
- * Core components.
- *
- * @module postprocessing/core
- */
 export { Disposable } from './Disposable';
 export { Initializable } from './Initializable';
 export { EffectComposer } from './EffectComposer';

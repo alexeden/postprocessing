@@ -14,9 +14,7 @@ import { integrateEffect } from './utils';
  * Use this pass to combine {@link Effect} instances.
  */
 export class EffectPass extends Pass implements Disposable, Initializable, Resizable {
-  /**
-   * The effects, sorted by attribute priority, DESC.
-   */
+  /** The effects, sorted by attribute priority, DESC. */
   private readonly effects: Effect[];
 
   /**
@@ -25,37 +23,24 @@ export class EffectPass extends Pass implements Disposable, Initializable, Resiz
    */
   private skipRendering = false;
 
-  /**
-   * Indicates whether dithering is enabled.
-   */
+  /** Indicates whether dithering is enabled. */
   private quantize = false;
 
-  /**
-   * The amount of shader uniforms that this pass uses.
-   */
+  /** The amount of shader uniforms that this pass uses. */
   private uniforms = 0;
 
-  /**
-   * The amount of shader varyings that this pass uses.
-   */
+  /** The amount of shader varyings that this pass uses. */
   private varyings = 0;
 
-  /**
-   * A time offset.
-   * Elapsed time will start at this value.
-   */
+  /** A time offset. Elapsed time will start at this value. */
   minTime = 1.0;
 
 
-  /**
-   * The maximum time.
-   * If the elapsed time exceeds this value, it will be reset.
-   */
+  /** The maximum time. If the elapsed time exceeds this value, it will be reset. */
   maxTime = 1e3;
 
   /**
    * Constructs a new effect pass.
-   *
    * The provided effects will be organized and merged for optimal performance.
    *
    * @param camera - The main camera. The camera's type and settings will be available to all effects.

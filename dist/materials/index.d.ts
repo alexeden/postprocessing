@@ -1,6 +1,5 @@
-/**
- * A collection of shader materials that are used in the post processing passes.
- *
- * @module postprocessing/materials
- */
-export { CopyMaterial } from './CopyMaterial';
+export * from './lib';
+import { CopyMaterial } from './CopyMaterial';
+import { EffectMaterial } from './EffectMaterial';
+export declare type PostprocessingMaterial = CopyMaterial | EffectMaterial;
+export { CopyMaterial, EffectMaterial, };

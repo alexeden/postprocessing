@@ -53,7 +53,7 @@ export declare abstract class Effect implements Initializable, Resizable, Dispos
      * You may override this method if your effect requires direct access to the
      * depth texture that is bound to the associated {@link EffectPass}.
      */
-    setDepthTexture(depthTexture: Texture, depthPacking?: number): void;
+    setDepthTexture(depthTexture: Texture | null, depthPacking?: number): void;
     /**
      * Updates the effect by performing supporting operations.
      *

@@ -1,6 +1,7 @@
-import { Scene, WebGLRenderer, WebGLRenderTarget, Texture, Camera, Material, IUniform } from 'three';
+import { Scene, WebGLRenderer, WebGLRenderTarget, Texture, Camera, IUniform } from 'three';
 import { Disposable, Initializable, Resizable } from '../core';
 import { PassName } from './lib';
+import { PostprocessingMaterial } from '../materials';
 /**
  * An abstract pass.
  *
@@ -53,13 +54,19 @@ export declare abstract class Pass implements Disposable, Initializable, Resizab
      *
      * @return The current fullscreen material(s), or null if there is none.
      */
-    getFullscreenMaterial(): Material | Material[] | null;
+    getFullscreenMaterial(): PostprocessingMaterial | PostprocessingMaterial[] | null;
     /**
      * Returns the current fullscreen material.
      *
      * @return The current fullscreen materials.
      */
-    getFullscreenMaterials(): Material[];
+    getFullscreenMaterials(): PostprocessingMaterial[];
+    /**
+     * Returns the current fullscreen material.
+     *
+     * @return The current fullscreen materials.
+     */
+    getFullscreenMaterialsOfType<T extends PostprocessingMaterial>(type: new (...args: any[]) => T): T[];
     /**
      * Sets the fullscreen material.
      *
@@ -68,7 +75,7 @@ export declare abstract class Pass implements Disposable, Initializable, Resizab
      *
      * @param - A fullscreen material.
      */
-    protected setFullscreenMaterial<M extends Material>(material: M): void;
+    protected setFullscreenMaterial(material: PostprocessingMaterial): void;
     /**
      * Returns the current depth texture.
      *
