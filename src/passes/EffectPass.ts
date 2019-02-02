@@ -1,31 +1,10 @@
+import { PerspectiveCamera, Camera, Material, Texture, WebGLRenderer, WebGLRenderTarget } from 'three';
 import { BlendFunction } from '../effects/blending';
-import { EffectAttribute } from '../effects';
+import { EffectAttribute, Effect } from '../effects';
 import { EffectMaterial, Section } from '../materials';
 import { Pass } from './Pass';
+import { PassName } from './lib';
 
-/**
- * Finds and collects substrings that match the given regular expression.
- *
- * @private
- * @param {RegExp} regExp - A regular expression.
- * @param {String} string - A string.
- * @return {String[]} The matching substrings.
- */
-
-function findSubstrings(regExp, string) {
-
-  const substrings = [];
-  let result;
-
-  while ((result = regExp.exec(string)) !== null) {
-
-    substrings.push(result[1]);
-
-  }
-
-  return substrings;
-
-}
 
 
 /**
@@ -34,150 +13,98 @@ function findSubstrings(regExp, string) {
  * Use this pass to combine {@link Effect} instances.
  */
 export class EffectPass extends Pass {
+  /**
+   * The effects, sorted by attribute priority, DESC.
+   */
+  private readonly effects: Effect[];
+
+  /**
+   * Indicates whether this pass should skip rendering.
+   * Effects will still be updated, even if this flag is true.
+   */
+  private skipRendering = false;
+
+  /**
+   * Indicates whether dithering is enabled.
+   */
+  private quantize = false;
+
+  /**
+   * The amount of shader uniforms that this pass uses.
+   */
+  private uniforms = 0;
+
+  /**
+   * The amount of shader varyings that this pass uses.
+   */
+  private varyings = 0;
+
+  /**
+   * A time offset.
+   *
+   * Elapsed time will start at this value.
+   *
+   * @type {Number}
+   */
+  minTime = 1.0;
+
+
+  /**
+   * The maximum time.
+   * If the elapsed time exceeds this value, it will be reset.
+   */
+  maxTime = 1e3;
 
   /**
    * Constructs a new effect pass.
    *
    * The provided effects will be organized and merged for optimal performance.
    *
-   * @param {Camera} camera - The main camera. The camera's type and settings will be available to all effects.
-   * @param {...Effect} effects - The effects that will be rendered by this pass.
+   * @param camera - The main camera. The camera's type and settings will be available to all effects.
+   * @param effects - The effects that will be rendered by this pass.
    */
+  constructor(
+    private readonly mainCamera: Camera | PerspectiveCamera,
+    ...effects: Effect[]
+  ) {
 
-  constructor(camera, ...effects) {
-
-    super('EffectPass');
-
-    /**
-     * The main camera.
-     *
-     * @type {Camera}
-     * @private
-     */
-
-    this.mainCamera = camera;
-
-    /**
-     * The effects, sorted by attribute priority, DESC.
-     *
-     * @type {Effect[]}
-     * @private
-     */
-
+    super(PassName.Effect);
     this.effects = effects.sort((a, b) => (b.attributes - a.attributes));
-
-    /**
-     * Indicates whether this pass should skip rendering.
-     *
-     * Effects will still be updated, even if this flag is true.
-     *
-     * @type {Boolean}
-     * @private
-     */
-
-    this.skipRendering = false;
-
-    /**
-     * Indicates whether dithering is enabled.
-     *
-     * @type {Boolean}
-     * @private
-     */
-
-    this.quantize = false;
-
-    /**
-     * The amount of shader uniforms that this pass uses.
-     *
-     * @type {Number}
-     * @private
-     */
-
-    this.uniforms = 0;
-
-    /**
-     * The amount of shader varyings that this pass uses.
-     *
-     * @type {Number}
-     * @private
-     */
-
-    this.varyings = 0;
-
-    /**
-     * A time offset.
-     *
-     * Elapsed time will start at this value.
-     *
-     * @type {Number}
-     */
-
-    this.minTime = 1.0;
-
-    /**
-     * The maximum time.
-     *
-     * If the elapsed time exceeds this value, it will be reset.
-     *
-     * @type {Number}
-     */
-
-    this.maxTime = 1e3;
-
     this.setFullscreenMaterial(this.createMaterial());
-
   }
 
   /**
    * Indicates whether dithering is enabled.
-   *
    * Color quantization reduces banding artifacts but degrades performance.
-   *
-   * @type {Boolean}
    */
-
   get dithering() {
-
     return this.quantize;
-
   }
 
   /**
    * Enables or disables dithering.
-   *
    * Note that some effects like bloom have their own dithering setting.
-   *
-   * @type {Boolean}
    */
-
-  set dithering(value) {
-
+  set dithering(value: boolean) {
     if (this.quantize !== value) {
-
       const material = this.getFullscreenMaterial();
 
       if (material !== null) {
-
         material.dithering = value;
         material.needsUpdate = true;
-
       }
 
       this.quantize = value;
-
     }
-
   }
 
   /**
    * Creates a compound shader material.
    *
-   * @private
-   * @return {Material} The new material.
+   * @return The new material.
    */
 
-  createMaterial() {
-
+  private createMaterial(): Material {
     const blendRegExp = /\bblend\b/g;
 
     const shaderParts = new Map([
@@ -201,15 +128,12 @@ export class EffectPass extends Pass {
     for (const effect of this.effects) {
 
       if (effect.blendMode.blendFunction === BlendFunction.SKIP) {
-
         continue;
-
-      } else if ((attributes & EffectAttribute.CONVOLUTION) !== 0 && (effect.attributes & EffectAttribute.CONVOLUTION) !== 0) {
-
+      }
+      else if ((attributes & EffectAttribute.CONVOLUTION) !== 0 && (effect.attributes & EffectAttribute.CONVOLUTION) !== 0) {
         console.error('Convolution effects cannot be merged', effect);
-
-      } else {
-
+      }
+      else {
         attributes |= effect.attributes;
 
         result = integrateEffect(('e' + id++), effect, shaderParts, blendModes, defines, uniforms, attributes);
@@ -219,55 +143,40 @@ export class EffectPass extends Pass {
         readDepth = readDepth || result.readDepth;
 
         if (effect.extensions !== null) {
-
           // Collect the WebGL extensions that are required by this effect.
           for (const extension of effect.extensions) {
-
             extensions.add(extension);
-
           }
-
         }
-
       }
-
     }
 
     // Integrate the relevant blend functions.
     for (const blendMode of blendModes.values()) {
-
       shaderParts.set(Section.FRAGMENT_HEAD, shaderParts.get(Section.FRAGMENT_HEAD) +
         blendMode.getShaderCode().replace(blendRegExp, 'blend' + blendMode.blendFunction) + '\n');
-
     }
 
     // Check if any effect relies on depth.
     if ((attributes & EffectAttribute.DEPTH) !== 0) {
-
       // Only read depth if any effect actually uses this information.
       if (readDepth) {
-
         shaderParts.set(Section.FRAGMENT_MAIN_IMAGE, 'float depth = readDepth(UV);\n\n\t' +
           shaderParts.get(Section.FRAGMENT_MAIN_IMAGE));
-
       }
 
       this.needsDepthTexture = true;
-
     }
 
     // Check if any effect transforms UVs in the fragment shader.
     if (transformedUv) {
-
       shaderParts.set(Section.FRAGMENT_MAIN_UV, 'vec2 transformedUv = vUv;\n' +
         shaderParts.get(Section.FRAGMENT_MAIN_UV));
 
       defines.set('UV', 'transformedUv');
-
-    } else {
-
+    }
+    else {
       defines.set('UV', 'vUv');
-
     }
 
     shaderParts.forEach((value, key, map) => map.set(key, value.trim()));
@@ -281,18 +190,13 @@ export class EffectPass extends Pass {
     const material = new EffectMaterial(shaderParts, defines, uniforms, this.mainCamera, this.dithering);
 
     if (extensions.size > 0) {
-
       // Enable required WebGL extensions.
       for (const extension of extensions) {
-
         material.extensions[extension] = true;
-
       }
-
     }
 
     return material;
-
   }
 
   /**
@@ -300,16 +204,13 @@ export class EffectPass extends Pass {
    *
    * Warning: This method performs a relatively expensive shader recompilation.
    */
-
   recompile() {
-
     let material = this.getFullscreenMaterial();
     let width = 0, height = 0;
     let depthTexture = null;
     let depthPacking = 0;
 
     if (material !== null) {
-
       const resolution = material.uniforms.resolution.value;
       width = resolution.x; height = resolution.y;
       depthTexture = material.uniforms.depthBuffer.value;
@@ -318,39 +219,35 @@ export class EffectPass extends Pass {
 
       this.uniforms = 0;
       this.varyings = 0;
-
     }
 
     material = this.createMaterial();
     material.setSize(width, height);
     this.setFullscreenMaterial(material);
     this.setDepthTexture(depthTexture, depthPacking);
-
   }
 
   /**
    * Returns the current depth texture.
    *
-   * @return {Texture} The current depth texture, or null if there is none.
+   * @return The current depth texture, or null if there is none.
    */
-
-  getDepthTexture() {
-
+  getDepthTexture(): Texture {
     const material = this.getFullscreenMaterial();
 
     return (material !== null) ? material.uniforms.depthBuffer.value : null;
-
   }
 
   /**
    * Sets the depth texture.
    *
-   * @param {Texture} depthTexture - A depth texture.
-   * @param {Number} [depthPacking=0] - The depth packing.
+   * @param depthTexture - A depth texture.
+   * @param depthPacking - The depth packing.
    */
-
-  setDepthTexture(depthTexture, depthPacking = 0) {
-
+  setDepthTexture(
+    depthTexture: Texture,
+    depthPacking = 0
+  ) {
     const material = this.getFullscreenMaterial();
 
     material.uniforms.depthBuffer.value = depthTexture;
@@ -358,98 +255,84 @@ export class EffectPass extends Pass {
     material.needsUpdate = true;
 
     for (const effect of this.effects) {
-
       effect.setDepthTexture(depthTexture, depthPacking);
-
     }
 
     this.needsDepthTexture = (depthTexture === null);
-
   }
 
   /**
    * Renders the effect.
    *
-   * @param {WebGLRenderer} renderer - The renderer.
-   * @param {WebGLRenderTarget} inputBuffer - A frame buffer that contains the result of the previous pass.
-   * @param {WebGLRenderTarget} outputBuffer - A frame buffer that serves as the output render target unless this pass renders to screen.
-   * @param {Number} [delta] - The time between the last frame and the current one in seconds.
-   * @param {Boolean} [stencilTest] - Indicates whether a stencil mask is active.
+   * @param renderer - The renderer.
+   * @param inputBuffer - A frame buffer that contains the result of the previous pass.
+   * @param outputBuffer - A frame buffer that serves as the output render target unless this pass renders to screen.
+   * @param delta - The time between the last frame and the current one in seconds.
    */
-
-  render(renderer, inputBuffer, outputBuffer, delta, stencilTest) {
-
+  render(
+    renderer: WebGLRenderer,
+    inputBuffer: WebGLRenderTarget,
+    outputBuffer: WebGLRenderTarget,
+    delta = 1
+  ) {
     const material = this.getFullscreenMaterial();
     const time = material.uniforms.time.value + delta;
 
     for (const effect of this.effects) {
-
       effect.update(renderer, inputBuffer, delta);
-
     }
 
     if (!this.skipRendering || this.renderToScreen) {
-
       material.uniforms.inputBuffer.value = inputBuffer.texture;
       material.uniforms.time.value = (time <= this.maxTime) ? time : this.minTime;
-      renderer.render(this.scene, this.camera, this.renderToScreen ? null : outputBuffer);
-
+      renderer.render(this.scene, this.camera, this.renderToScreen ? undefined : outputBuffer);
     }
-
   }
 
   /**
    * Updates the size of this pass.
    *
-   * @param {Number} width - The width.
-   * @param {Number} height - The height.
+   * @param width - The width.
+   * @param height - The height.
    */
-
-  setSize(width, height) {
-
+  setSize(
+    width: number,
+    height: number
+  ) {
     this.getFullscreenMaterial().setSize(width, height);
 
     for (const effect of this.effects) {
-
       effect.setSize(width, height);
-
     }
-
   }
 
   /**
    * Performs initialization tasks.
    *
-   * @param {WebGLRenderer} renderer - The renderer.
-   * @param {Boolean} alpha - Whether the renderer uses the alpha channel or not.
+   * @param renderer - The renderer.
+   * @param alpha - Whether the renderer uses the alpha channel or not.
    */
-
-  initialize(renderer, alpha) {
-
+  initialize(
+    renderer: WebGLRenderer,
+    alpha: boolean
+  ) {
     const capabilities = renderer.capabilities;
 
     let max = Math.min(capabilities.maxFragmentUniforms, capabilities.maxVertexUniforms);
 
     if (this.uniforms > max) {
-
       console.warn('The current rendering context doesn\'t support more than ' + max + ' uniforms, but ' + this.uniforms + ' were defined');
-
     }
 
     max = capabilities.maxVaryings;
 
     if (this.varyings > max) {
-
       console.warn('The current rendering context doesn\'t support more than ' + max + ' varyings, but ' + this.varyings + ' were defined');
-
     }
 
     for (const effect of this.effects) {
-
       effect.initialize(renderer, alpha);
-
     }
-
   }
 
   /**
@@ -457,17 +340,11 @@ export class EffectPass extends Pass {
    *
    * This pass will be inoperative after this method was called!
    */
-
   dispose() {
-
     super.dispose();
 
     for (const effect of this.effects) {
-
       effect.dispose();
-
     }
-
   }
-
 }

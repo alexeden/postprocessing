@@ -1,4 +1,4 @@
-import { PerspectiveCamera, ShaderMaterial, Uniform, Vector2 } from 'three';
+import { PerspectiveCamera, ShaderMaterial, Uniform, Vector2, Camera } from 'three';
 import { Resizable } from '../core';
 import { Section } from './lib';
 import fragmentTemplate from './glsl/effect/shader.frag';
@@ -23,7 +23,7 @@ export class EffectMaterial extends ShaderMaterial implements Resizable {
     shaderParts: Map<Section, string>,
     defines: Map<string, string>,
     uniforms: Map<string, Uniform>,
-    camera: PerspectiveCamera | null = null,
+    camera: Camera | PerspectiveCamera | null = null,
     dithering = false
   ) {
 
@@ -113,12 +113,11 @@ export class EffectMaterial extends ShaderMaterial implements Resizable {
   /**
    * Adopts the settings of the given camera.
    */
-  adoptCameraSettings(camera: PerspectiveCamera | null = null) {
+  adoptCameraSettings(camera: Camera | PerspectiveCamera | null = null) {
     if (camera !== null) {
-      this.uniforms.cameraNear.value = camera && camera.near;
-      this.uniforms.cameraFar.value = camera.far;
-
       if (camera instanceof PerspectiveCamera) {
+        this.uniforms.cameraNear.value = camera.near;
+        this.uniforms.cameraFar.value = camera.far;
         this.defines.PERSPECTIVE_CAMERA = '1';
       }
       else {
