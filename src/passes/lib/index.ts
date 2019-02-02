@@ -1,1 +1,1 @@
-export * from './passes.types';
+export { PassName } from './PassName';
