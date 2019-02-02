@@ -1,6 +1,7 @@
-import { ShaderMaterial, WebGLRenderer, WebGLRenderTarget } from 'three';
+import { WebGLRenderer, WebGLRenderTarget } from 'three';
 import { PassName } from './lib';
 import { Pass } from './Pass';
+import { PostprocessingMaterial } from '../materials';
 
 /**
  * A shader pass. Renders any shader material as a fullscreen effect.
@@ -16,7 +17,7 @@ export class ShaderPass extends Pass {
    * @param input - The name of the input buffer uniform.
    */
   constructor(
-    material: ShaderMaterial,
+    material: PostprocessingMaterial,
     input = 'inputBuffer'
   ) {
     super(PassName.Shader);
@@ -39,7 +40,7 @@ export class ShaderPass extends Pass {
    * @param input - The name of the input buffer uniform.
    */
   setInput(input: string) {
-    const materials = this.getFullscreenMaterials() as ShaderMaterial[];
+    const materials = this.getFullscreenMaterials();
     this.uniform = null;
     materials.forEach(material => {
       const uniforms = material.uniforms;

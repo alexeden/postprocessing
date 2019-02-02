@@ -1,9 +1,10 @@
-import { PerspectiveCamera, Camera, Material, Texture, WebGLRenderer, WebGLRenderTarget } from 'three';
+import { PerspectiveCamera, Camera, Texture, WebGLRenderer, WebGLRenderTarget } from 'three';
 import { BlendFunction } from '../effects/blending';
 import { EffectAttribute, Effect } from '../effects';
 import { EffectMaterial, Section } from '../materials';
 import { Pass } from './Pass';
 import { PassName } from './lib';
+import { integrateEffect } from './utils';
 
 
 
@@ -41,10 +42,7 @@ export class EffectPass extends Pass {
 
   /**
    * A time offset.
-   *
    * Elapsed time will start at this value.
-   *
-   * @type {Number}
    */
   minTime = 1.0;
 
@@ -87,12 +85,10 @@ export class EffectPass extends Pass {
    */
   set dithering(value: boolean) {
     if (this.quantize !== value) {
-      const material = this.getFullscreenMaterial();
-
-      if (material !== null) {
+      this.getFullscreenMaterials().forEach(material => {
         material.dithering = value;
         material.needsUpdate = true;
-      }
+      });
 
       this.quantize = value;
     }
@@ -103,8 +99,7 @@ export class EffectPass extends Pass {
    *
    * @return The new material.
    */
-
-  private createMaterial(): Material {
+  private createMaterial(): EffectMaterial {
     const blendRegExp = /\bblend\b/g;
 
     const shaderParts = new Map([
@@ -120,13 +115,14 @@ export class EffectPass extends Pass {
     const uniforms = new Map();
     const extensions = new Set();
 
-    let id = 0, varyings = 0, attributes = 0;
+    let id = 0;
+    let varyings = 0;
+    let attributes = 0;
     let transformedUv = false;
     let readDepth = false;
     let result;
 
     for (const effect of this.effects) {
-
       if (effect.blendMode.blendFunction === BlendFunction.SKIP) {
         continue;
       }
@@ -153,16 +149,20 @@ export class EffectPass extends Pass {
 
     // Integrate the relevant blend functions.
     for (const blendMode of blendModes.values()) {
-      shaderParts.set(Section.FRAGMENT_HEAD, shaderParts.get(Section.FRAGMENT_HEAD) +
-        blendMode.getShaderCode().replace(blendRegExp, 'blend' + blendMode.blendFunction) + '\n');
+      shaderParts.set(
+        Section.FRAGMENT_HEAD,
+        shaderParts.get(Section.FRAGMENT_HEAD) + blendMode.getShaderCode().replace(blendRegExp, 'blend' + blendMode.blendFunction) + '\n'
+      );
     }
 
     // Check if any effect relies on depth.
     if ((attributes & EffectAttribute.DEPTH) !== 0) {
       // Only read depth if any effect actually uses this information.
       if (readDepth) {
-        shaderParts.set(Section.FRAGMENT_MAIN_IMAGE, 'float depth = readDepth(UV);\n\n\t' +
-          shaderParts.get(Section.FRAGMENT_MAIN_IMAGE));
+        shaderParts.set(
+          Section.FRAGMENT_MAIN_IMAGE,
+          `float depth = readDepth(UV);\n\n\t${shaderParts.get(Section.FRAGMENT_MAIN_IMAGE)}`
+        );
       }
 
       this.needsDepthTexture = true;
@@ -170,8 +170,10 @@ export class EffectPass extends Pass {
 
     // Check if any effect transforms UVs in the fragment shader.
     if (transformedUv) {
-      shaderParts.set(Section.FRAGMENT_MAIN_UV, 'vec2 transformedUv = vUv;\n' +
-        shaderParts.get(Section.FRAGMENT_MAIN_UV));
+      shaderParts.set(
+        Section.FRAGMENT_MAIN_UV,
+        `vec2 transformedUv = vUv;\n${shaderParts.get(Section.FRAGMENT_MAIN_UV)}`
+      );
 
       defines.set('UV', 'transformedUv');
     }
@@ -183,7 +185,6 @@ export class EffectPass extends Pass {
 
     this.uniforms = uniforms.size;
     this.varyings = varyings;
-
     this.skipRendering = (id === 0);
     this.needsSwap = !this.skipRendering;
 
@@ -206,7 +207,8 @@ export class EffectPass extends Pass {
    */
   recompile() {
     let material = this.getFullscreenMaterial();
-    let width = 0, height = 0;
+    let width = 0;
+    let height = 0;
     let depthTexture = null;
     let depthPacking = 0;
 
@@ -233,9 +235,9 @@ export class EffectPass extends Pass {
    * @return The current depth texture, or null if there is none.
    */
   getDepthTexture(): Texture {
-    const material = this.getFullscreenMaterial();
+    const materials = this.getFullscreenMaterials();
 
-    return (material !== null) ? material.uniforms.depthBuffer.value : null;
+    return materials.length > 0 ? materials[0].uniforms.depthBuffer.value : null;
   }
 
   /**
@@ -299,7 +301,10 @@ export class EffectPass extends Pass {
     width: number,
     height: number
   ) {
-    this.getFullscreenMaterial().setSize(width, height);
+    this.getFullscreenMaterials()
+      .forEach(material => {
+        if ('setSize' in material) material.setSize(width, height);
+      });
 
     for (const effect of this.effects) {
       effect.setSize(width, height);
@@ -321,13 +326,13 @@ export class EffectPass extends Pass {
     let max = Math.min(capabilities.maxFragmentUniforms, capabilities.maxVertexUniforms);
 
     if (this.uniforms > max) {
-      console.warn('The current rendering context doesn\'t support more than ' + max + ' uniforms, but ' + this.uniforms + ' were defined');
+      console.warn(`The current rendering context doesn't support more than ${max} uniforms, but ${this.uniforms} were defined`);
     }
 
     max = capabilities.maxVaryings;
 
     if (this.varyings > max) {
-      console.warn('The current rendering context doesn\'t support more than ' + max + ' varyings, but ' + this.varyings + ' were defined');
+      console.warn(`The current rendering context doesn't support more than ${max} varyings, but ${this.varyings} were defined`);
     }
 
     for (const effect of this.effects) {

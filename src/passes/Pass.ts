@@ -7,7 +7,6 @@ import {
   WebGLRenderTarget,
   Texture,
   Camera,
-  Material,
   IUniform,
 } from 'three';
 import {
@@ -16,6 +15,15 @@ import {
   Resizable,
 } from '../core';
 import { PassName } from './lib';
+import { PostprocessingMaterial } from '../materials';
+
+/**
+ * Special type to workaround accessing the `uniforms` property of
+ * `quad.material`
+ */
+type PassMesh = Merge<Mesh, {
+  material: PostprocessingMaterial | PostprocessingMaterial[];
+}>;
 
 /**
  * An abstract pass.
@@ -30,7 +38,7 @@ export abstract class Pass implements Disposable, Initializable, Resizable {
   /**
    * A quad mesh that fills the screen.
    */
-  private quad: Mesh | null = null;
+  private quad: PassMesh | null = null;
 
   /**
    * Indicates whether the {@link EffectComposer} should swap the frame
@@ -79,7 +87,7 @@ export abstract class Pass implements Disposable, Initializable, Resizable {
    *
    * @return The current fullscreen material(s), or null if there is none.
    */
-  getFullscreenMaterial(): Material | Material[] | null {
+  getFullscreenMaterial(): PostprocessingMaterial | PostprocessingMaterial[] | null {
     return (this.quad !== null) ? this.quad.material : null;
   }
 
@@ -88,7 +96,7 @@ export abstract class Pass implements Disposable, Initializable, Resizable {
    *
    * @return The current fullscreen materials.
    */
-  getFullscreenMaterials(): Material[] {
+  getFullscreenMaterials(): PostprocessingMaterial[] {
     return this.quad === null
       ? []
       : Array.isArray(this.quad.material)
@@ -104,9 +112,8 @@ export abstract class Pass implements Disposable, Initializable, Resizable {
    *
    * @param - A fullscreen material.
    */
-
-  protected setFullscreenMaterial<M extends Material>(
-    material: M
+  protected setFullscreenMaterial(
+    material: PostprocessingMaterial
   ) {
     if (this.quad !== null) {
       this.quad.material = material;
@@ -116,7 +123,7 @@ export abstract class Pass implements Disposable, Initializable, Resizable {
       quad.frustumCulled = false;
       if (this.scene !== null) {
         this.scene.add(quad);
-        this.quad = quad;
+        (this as any).quad = quad;
       }
     }
   }
