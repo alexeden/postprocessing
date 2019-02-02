@@ -65,7 +65,7 @@ export class EffectComposer implements Disposable, Resizable {
    * @param options - The options.
    */
   constructor(
-    private renderer: WebGLRenderer | null = null,
+    public renderer: WebGLRenderer | null = null,
     partialOptions: Partial<EffectComposerOptions> = { }
   ) {
 
