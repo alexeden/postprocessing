@@ -192,7 +192,7 @@ export class EffectPass extends Pass implements Disposable, Initializable, Resiz
     if (extensions.size > 0) {
       // Enable required WebGL extensions.
       for (const extension of extensions) {
-        material.extensions[extension] = true;
+        (material.extensions as any)[extension] = true;
       }
     }
 
@@ -278,17 +278,17 @@ export class EffectPass extends Pass implements Disposable, Initializable, Resiz
     outputBuffer: WebGLRenderTarget,
     delta = 1
   ) {
-    const material = this.getFullscreenMaterial();
-    const time = material.uniforms.time.value + delta;
-
     for (const effect of this.effects) {
       effect.update(renderer, inputBuffer, delta);
     }
 
     if (!this.skipRendering || this.renderToScreen) {
-      material.uniforms.inputBuffer.value = inputBuffer.texture;
-      material.uniforms.time.value = (time <= this.maxTime) ? time : this.minTime;
-      renderer.render(this.scene, this.camera, this.renderToScreen ? undefined : outputBuffer);
+      this.getFullscreenMaterials().forEach(material => {
+        const time = material.uniforms.time.value + delta;
+        material.uniforms.inputBuffer.value = inputBuffer.texture;
+        material.uniforms.time.value = (time <= this.maxTime) ? time : this.minTime;
+        renderer.render(this.scene, this.camera, this.renderToScreen ? undefined : outputBuffer);
+      });
     }
   }
 
