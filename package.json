@@ -3,8 +3,8 @@
 	"version": "5.5.0",
 	"description": "A post processing library that provides the means to implement image filter effects for three.js.",
 	"homepage": "https://github.com/vanruesc/postprocessing",
-	"main": "dist/postprocessing.js",
-	"module": "src/postprocessing.ts",
+	"main": "dist/index.js",
+	"types": "dist/index.d.ts",
 	"sideEffects": false,
 	"license": "Zlib",
 	"keywords": [
@@ -102,7 +102,6 @@
 		"tslint": "^5.12.1",
 		"tslint-loader": "^3.5.4",
 		"typescript": "^3.2.4",
-		"unminified-webpack-plugin": "^2.0.0",
 		"webpack": "^4.29.0",
 		"webpack-cli": "^3.2.1"
 	}

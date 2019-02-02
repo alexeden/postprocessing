@@ -1,6 +1,4 @@
 const path = require("path");
-const UnminifiedWebpackPlugin = require("unminified-webpack-plugin");
-// const webpack = require("webpack");
 
 const babelOptions = {
 	presets: ["@babel/preset-env"]
@@ -9,7 +7,7 @@ const babelOptions = {
 module.exports = {
 	target: "web",
 
-	mode: "development",
+	mode: "production",
 
 	context: path.resolve(__dirname, "src"),
 
@@ -17,10 +15,10 @@ module.exports = {
 		extensions: [".ts", ".tsx", ".js"]
 	},
 
-	entry: "./postprocessing.ts",
+	entry: "./index.ts",
 
 	output: {
-		filename: "postprocessing.js",
+		filename: "index.js",
 		path: path.resolve(__dirname, "dist"),
 		libraryTarget: "umd",
 		library: "postprocessing"
@@ -60,21 +58,7 @@ module.exports = {
 			}
 		]
 	},
-	plugins: [
-		new UnminifiedWebpackPlugin({
-		})
-	]
-
-	// optimization: {
-	// 	minimize: true
-	// }
-	// plugins: [
-	// 	new webpack.optimize.UglifyJsPlugin({
-	// 		include: /\.min\.js$/,
-	// 		sourceMap: true,
-	// 		compressor: {
-	// 			warnings: false
-	// 		}
-	// 	})
-	// ]
+	optimization: {
+		minimize: true
+	}
 };
