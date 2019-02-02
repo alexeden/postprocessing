@@ -63,6 +63,10 @@
 	"eslintConfig": {
 		"extends": "delta"
 	},
+	"eslintIgnore": [
+		"build/",
+		"dist/"
+	],
 	"peerDependencies": {
 		"three": ">= 0.87.0 <= 0.101.0"
 	},
