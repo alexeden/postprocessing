@@ -1,7 +1,7 @@
 // tslint:disable:prefer-template
 import { Uniform } from 'three';
-import { Effect, BlendFunction, BlendMode, EffectAttribute } from '../../effects';
-import { Section } from '../../materials';
+import { Effect, BlendFunction, BlendMode, EffectAttribute } from '../effects';
+import { Section } from '../materials';
 import { findSubstrings } from './FindSubstringsUtil';
 import { prefixSubstrings } from './PrefixSubstringsUtils';
 
@@ -26,7 +26,7 @@ export interface IntegratedEffect {
  * @param attributes - The global, collective attributes.
  * @return The results.
  */
-export function integrateEffect(
+export const integrateEffect = (
   prefix: string,
   effect: Effect,
   shaderParts: Map<string, string>,
@@ -34,7 +34,7 @@ export function integrateEffect(
   defines: Map<string, string>,
   uniforms: Map<string, Uniform>,
   attributes: EffectAttribute
-): IntegratedEffect {
+): IntegratedEffect => {
 
   const functionRegExp = /(?:\w+\s+(\w+)\([\w\s,]*\)\s*{[^}]+})/g;
   const varyingRegExp = /(?:varying\s+\w+\s+(\w*))/g;
@@ -142,4 +142,4 @@ export function integrateEffect(
   }
 
   return { varyings, transformedUv, readDepth };
-}
+};

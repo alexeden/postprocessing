@@ -5,7 +5,7 @@
  * @param string - A string.
  * @return The matching substrings.
  */
-export function findSubstrings(regExp: RegExp, str: string): string[] {
+export const findSubstrings = (regExp: RegExp, str: string): string[] => {
   const substrings = [];
   let result;
 

@@ -5,7 +5,7 @@
  * @param substrings - The substrings.
  * @param strings - A collection of named strings.
  */
-export function prefixSubstrings(prefix: string, substrings: string[], strings: Map<string, string>) {
+export const prefixSubstrings = (prefix: string, substrings: string[], strings: Map<string, string>) => {
   let prefixed;
   let regExp;
 
