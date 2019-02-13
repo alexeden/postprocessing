@@ -16,6 +16,7 @@ import {
  * Effects can be combined using the {@link EffectPass}.
  */
 export abstract class Effect implements Initializable, Resizable, Disposable {
+  // tslint:disable-next-line:no-any
   [k: string]: any;
 
   /**
