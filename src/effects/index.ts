@@ -10,7 +10,7 @@ export { ChromaticAberrationEffect } from './ChromaticAberrationEffect';
 // export { DotScreenEffect } from './DotScreenEffect';
 export { Effect } from './Effect';
 // export { GammaCorrectionEffect } from './GammaCorrectionEffect';
-// export { GlitchEffect, GlitchMode } from './GlitchEffect';
+export { GlitchEffect, GlitchMode } from './GlitchEffect';
 // export { GodRaysEffect } from './GodRaysEffect';
 // export { GridEffect } from './GridEffect';
 // export { HueSaturationEffect } from './HueSaturationEffect';

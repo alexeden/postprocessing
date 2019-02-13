@@ -1,6 +1,6 @@
 // tslint:disable cyclomatic-complexity
 import { Box2, Vector2 } from 'three';
-import { RawImageData } from 'images/RawImageData';
+import { RawImageData } from '../../RawImageData';
 import { DIAGONAL_SAMPLES, SMOOTH_MAX_DISTANCE, DIAGONAL_EDGES } from './constants';
 
 export class SMAAUtils {

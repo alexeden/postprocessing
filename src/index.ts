@@ -2,7 +2,7 @@ export * from './core';
 
 export * from './effects';
 
-// export * from './images';
+export * from './images';
 
 export * from './materials';
 
