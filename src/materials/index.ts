@@ -1,7 +1,7 @@
 export * from './lib';
 
 // export { AdaptiveLuminanceMaterial } from './AdaptiveLuminanceMaterial';
-// export { ColorEdgesMaterial } from './ColorEdgesMaterial';
+import { ColorEdgesMaterial } from './ColorEdgesMaterial';
 // export { ConvolutionMaterial, KernelSize } from './ConvolutionMaterial';
 import { CopyMaterial } from './CopyMaterial';
 // export { DepthComparisonMaterial } from './DepthComparisonMaterial';
@@ -12,10 +12,12 @@ import { EffectMaterial } from './EffectMaterial';
 // export { SMAAWeightsMaterial } from './SMAAWeightsMaterial';
 
 export type PostprocessingMaterial
-  = CopyMaterial
+  = ColorEdgesMaterial
+  | CopyMaterial
   | EffectMaterial;
 
 export {
+  ColorEdgesMaterial,
   CopyMaterial,
   EffectMaterial,
 };
