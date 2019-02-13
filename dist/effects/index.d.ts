@@ -4,4 +4,5 @@ export { ChromaticAberrationEffect } from './ChromaticAberrationEffect';
 export { Effect } from './Effect';
 export { GlitchEffect, GlitchMode } from './GlitchEffect';
 export { NoiseEffect } from './NoiseEffect';
+export { ScanlineEffect } from './ScanlineEffect';
 export { SMAAEffect } from './SMAAEffect';

@@ -4,6 +4,7 @@ export declare enum EffectName {
     ChromaticAberration = "ChromaticAberrationEffect",
     Glitch = "GlitchEffect",
     Noise = "NoiseEffect",
+    Scanline = "ScanlineEffect",
     SMAA = "SMAAEffect"
 }
 export declare type PreprocessorMacros = Map<string, string>;

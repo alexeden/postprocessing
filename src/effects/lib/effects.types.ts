@@ -5,6 +5,7 @@ export enum EffectName {
   ChromaticAberration = 'ChromaticAberrationEffect',
   Glitch = 'GlitchEffect',
   Noise = 'NoiseEffect',
+  Scanline = 'ScanlineEffect',
   SMAA = 'SMAAEffect',
 }
 
