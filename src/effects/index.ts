@@ -21,7 +21,7 @@ export { NoiseEffect } from './NoiseEffect';
 // export { ScanlineEffect } from './ScanlineEffect';
 // export { ShockWaveEffect } from './ShockWaveEffect';
 // export { SepiaEffect } from './SepiaEffect';
-// export { SMAAEffect } from './SMAAEffect';
+export { SMAAEffect } from './SMAAEffect';
 // export { SSAOEffect } from './SSAOEffect';
 // export { TextureEffect } from './TextureEffect';
 // export { ToneMappingEffect } from './ToneMappingEffect';
