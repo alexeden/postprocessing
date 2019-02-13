@@ -15,4 +15,4 @@ export const findSubstrings = (regExp: RegExp, str: string): string[] => {
   }
 
   return substrings;
-}
+};

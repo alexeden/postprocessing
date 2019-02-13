@@ -21,4 +21,4 @@ export const prefixSubstrings = (prefix: string, substrings: string[], strings: 
       }
     }
   }
-}
+};

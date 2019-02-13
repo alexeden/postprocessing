@@ -94,16 +94,13 @@ export class EffectMaterial extends ShaderMaterial implements Resizable {
 
   /**
    * Sets the resolution.
-   *
-   * @param width - The width.
-   * @param height - The height.
    */
   setSize(
-    width: number,
-    height: number
+    unboundWidth: number,
+    unboundHeight: number
   ) {
-    width = Math.max(width, 1.0);
-    height = Math.max(height, 1.0);
+    const width = Math.max(unboundWidth, 1.0);
+    const height = Math.max(unboundHeight, 1.0);
 
     this.uniforms.resolution.value.set(width, height);
     this.uniforms.texelSize.value.set(1.0 / width, 1.0 / height);

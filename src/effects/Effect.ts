@@ -84,7 +84,7 @@ export abstract class Effect implements Initializable, Resizable, Disposable {
   }
 
   /**
-   * Sets the depth texture.
+   * @virtual Sets the depth texture.
    *
    * You may override this method if your effect requires direct access to the
    * depth texture that is bound to the associated {@link EffectPass}.
@@ -95,7 +95,7 @@ export abstract class Effect implements Initializable, Resizable, Disposable {
   ) { }
 
   /**
-   * Updates the effect by performing supporting operations.
+   * @virtual Updates the effect by performing supporting operations.
    *
    * This method is called by the {@link EffectPass} right before the main
    * fullscreen render operation, even if the blend function is set to `SKIP`.
@@ -114,7 +114,7 @@ export abstract class Effect implements Initializable, Resizable, Disposable {
   ) { }
 
   /**
-   * Updates the size of this effect.
+   * @virtual Updates the size of this effect.
    *
    * You may override this method in case you want to be informed about the main
    * render size.
@@ -128,7 +128,7 @@ export abstract class Effect implements Initializable, Resizable, Disposable {
   ) { }
 
   /**
-   * Performs initialization tasks.
+   * @virtual Performs initialization tasks.
    *
    * By overriding this method you gain access to the renderer. You'll also be
    * able to configure your custom render targets to use the appropriate format

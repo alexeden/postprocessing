@@ -225,6 +225,7 @@ export class EffectComposer implements Disposable, Resizable {
       this.passes.splice(index, 0, pass);
     }
     else {
+      // tslint:disable-next-line:no-parameter-reassignment
       index = this.passes.push(pass) - 1;
     }
 
@@ -300,7 +301,9 @@ export class EffectComposer implements Disposable, Resizable {
 
     if (width === undefined || height === undefined) {
       size = this.renderer!.getSize();
+      // tslint:disable-next-line:no-parameter-reassignment
       width = size.width;
+      // tslint:disable-next-line:no-parameter-reassignment
       height = size.height;
     }
 
