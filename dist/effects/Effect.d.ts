@@ -48,14 +48,14 @@ export declare abstract class Effect implements Initializable, Resizable, Dispos
     blendMode: BlendMode;
     constructor(name: EffectName, fragmentShader: FragmentShader, partialOptions?: Partial<EffectOptions>);
     /**
-     * Sets the depth texture.
+     * @virtual Sets the depth texture.
      *
      * You may override this method if your effect requires direct access to the
      * depth texture that is bound to the associated {@link EffectPass}.
      */
     setDepthTexture(depthTexture: Texture | null, depthPacking?: number): void;
     /**
-     * Updates the effect by performing supporting operations.
+     * @virtual Updates the effect by performing supporting operations.
      *
      * This method is called by the {@link EffectPass} right before the main
      * fullscreen render operation, even if the blend function is set to `SKIP`.
@@ -69,7 +69,7 @@ export declare abstract class Effect implements Initializable, Resizable, Dispos
      */
     update(renderer: WebGLRenderer, inputBuffer: WebGLRenderTarget, delta?: number): void;
     /**
-     * Updates the size of this effect.
+     * @virtual Updates the size of this effect.
      *
      * You may override this method in case you want to be informed about the main
      * render size.
@@ -79,7 +79,7 @@ export declare abstract class Effect implements Initializable, Resizable, Dispos
      */
     setSize(width: number, height: number): void;
     /**
-     * Performs initialization tasks.
+     * @virtual Performs initialization tasks.
      *
      * By overriding this method you gain access to the renderer. You'll also be
      * able to configure your custom render targets to use the appropriate format

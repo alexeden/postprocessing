@@ -31,11 +31,8 @@ export declare class EffectMaterial extends ShaderMaterial implements Resizable 
     depthPacking: number;
     /**
      * Sets the resolution.
-     *
-     * @param width - The width.
-     * @param height - The height.
      */
-    setSize(width: number, height: number): void;
+    setSize(unboundWidth: number, unboundHeight: number): void;
     /**
      * Adopts the settings of the given camera.
      */

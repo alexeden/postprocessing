@@ -1,5 +1,5 @@
 import { Uniform } from 'three';
-import { Effect, BlendFunction, BlendMode, EffectAttribute } from '../../effects';
+import { Effect, BlendFunction, BlendMode, EffectAttribute } from '../effects';
 export interface IntegratedEffect {
     /** The varyings used by the given effect. */
     varyings: string[];
@@ -20,4 +20,4 @@ export interface IntegratedEffect {
  * @param attributes - The global, collective attributes.
  * @return The results.
  */
-export declare function integrateEffect(prefix: string, effect: Effect, shaderParts: Map<string, string>, blendModes: Map<BlendFunction, BlendMode>, defines: Map<string, string>, uniforms: Map<string, Uniform>, attributes: EffectAttribute): IntegratedEffect;
+export declare const integrateEffect: (prefix: string, effect: Effect, shaderParts: Map<string, string>, blendModes: Map<BlendFunction, BlendMode>, defines: Map<string, string>, uniforms: Map<string, Uniform>, attributes: EffectAttribute) => IntegratedEffect;

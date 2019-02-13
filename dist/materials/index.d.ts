@@ -1,5 +1,7 @@
 export * from './lib';
+import { ColorEdgesMaterial } from './ColorEdgesMaterial';
 import { CopyMaterial } from './CopyMaterial';
 import { EffectMaterial } from './EffectMaterial';
-export declare type PostprocessingMaterial = CopyMaterial | EffectMaterial;
-export { CopyMaterial, EffectMaterial, };
+import { SMAAWeightsMaterial } from './SMAAWeightsMaterial';
+export declare type PostprocessingMaterial = ColorEdgesMaterial | CopyMaterial | EffectMaterial | SMAAWeightsMaterial;
+export { ColorEdgesMaterial, CopyMaterial, EffectMaterial, SMAAWeightsMaterial, };
