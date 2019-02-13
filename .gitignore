@@ -64,3 +64,4 @@ node_modules
 # Temporary files
 *.tmp
 .rpt2_cache
+public/demo/**/*.d.ts
