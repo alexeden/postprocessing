@@ -4,6 +4,7 @@ import { Uniform } from 'three';
 export enum EffectName {
   ChromaticAberration = 'ChromaticAberrationEffect',
   Glitch = 'GlitchEffect',
+  Noise = 'NoiseEffect',
 }
 
 export type PreprocessorMacros = Map<string, string>;

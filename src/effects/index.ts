@@ -14,7 +14,7 @@ export { Effect } from './Effect';
 // export { GodRaysEffect } from './GodRaysEffect';
 // export { GridEffect } from './GridEffect';
 // export { HueSaturationEffect } from './HueSaturationEffect';
-// export { NoiseEffect } from './NoiseEffect';
+export { NoiseEffect } from './NoiseEffect';
 // export { OutlineEffect } from './OutlineEffect';
 // export { PixelationEffect } from './PixelationEffect';
 // export { RealisticBokehEffect } from './RealisticBokehEffect';
