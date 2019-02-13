@@ -4,8 +4,7 @@ import { BlendFunction, EffectAttribute, Effect } from '../effects';
 import { EffectMaterial, Section } from '../materials';
 import { Pass } from './Pass';
 import { PassName } from './lib';
-import { integrateEffect } from './utils';
-
+import { integrateEffect } from '../utils';
 
 
 /**
@@ -177,6 +176,7 @@ export class EffectPass extends Pass implements Disposable, Initializable, Resiz
     if (extensions.size > 0) {
       // Enable required WebGL extensions.
       for (const extension of extensions) {
+        // tslint:disable-next-line:no-any
         (material.extensions as any)[extension] = true;
       }
     }
