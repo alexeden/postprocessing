@@ -46,6 +46,7 @@
 		"lint:demo": "eslint demo/src",
 		"lint:test": "eslint test",
 		"build": "rimraf dist && webpack",
+		"start": "nodemon",
 		"xbuild": "rollup -c",
 		"build:production": "cross-env NODE_ENV=production npm run build",
 		"doc": "rimraf public/docs && esdoc",
@@ -86,6 +87,7 @@
 		"eslint-config-delta": "0.x.x",
 		"inline-import": "1.x.x",
 		"math-ds": "1.x.x",
+		"nodemon": "^1.18.10",
 		"raw-loader": "^1.0.0",
 		"rimraf": "2.x.x",
 		"rollup": "1.x.x",
@@ -104,5 +106,12 @@
 		"typescript": "^3.2.4",
 		"webpack": "^4.29.0",
 		"webpack-cli": "^3.2.1"
+	},
+	"nodemonConfig": {
+		"ext": "ts,js,frag,vert",
+		"exec": "npm run build",
+		"watch": [
+			"src/"
+		]
 	}
 }
