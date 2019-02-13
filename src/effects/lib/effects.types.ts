@@ -2,6 +2,7 @@ import { BlendFunction } from '../blending';
 import { Uniform } from 'three';
 
 export enum EffectName {
+  ChromaticAberration = 'ChromaticAberrationEffect',
   Glitch = 'GlitchEffect',
 }
 

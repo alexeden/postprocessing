@@ -22,10 +22,6 @@ export class ClearPass extends Pass {
   clearColor: Color | null;
   clearAlpha: number;
 
-  /**
-   * Constructs a new clear pass.
-   * @param options - Additional options.
-   */
   constructor(
     partialOptions: Partial<ClearPassOptions> = { }
   ) {
