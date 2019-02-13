@@ -6,268 +6,189 @@ import {
   RGBFormat,
   Uniform,
   Vector2,
+  Texture,
+  WebGLRenderTarget,
+  WebGLRenderer,
 } from 'three';
-
 import { BlendFunction } from './blending/BlendFunction';
 import { Effect } from './Effect';
-
 import fragment from './glsl/glitch/shader.frag';
+import { EffectName } from './lib';
+import { randomFloat } from '../utils';
+
+export interface GlitchEffectOptions {
+  /** The blend function of this effect. */
+  blendFunction: BlendFunction;
+  /** A chromatic aberration offset. If provided, the glitch effect will influence this offset. */
+  chromaticAberrationOffset: Vector2 | null;
+  /** The scale of the blocky glitch columns. */
+  columns: number;
+  /** The minimum and maximum delay between glitch activations in seconds. */
+  delay: Vector2;
+  /** The size of the generated noise map. Will be ignored if a perturbation map is provided. */
+  dtSize: number;
+  /** The minimum and maximum duration of a glitch in seconds. */
+  duration: Vector2;
+  /** A perturbation map. If none is provided, a noise texture will be created. */
+  perturbationMap: Texture | null;
+  /** The threshold for strong glitches. */
+  ratio: number;
+  /** The strength of weak and strong glitches. */
+  strength: Vector2;
+}
+
+export enum GlitchMode {
+  /** No glitches. */
+  DISABLED = 0,
+  /** Sporadic glitches. */
+  SPORADIC = 1,
+  /** Constant mild glitches. */
+  CONSTANT_MILD = 2,
+  /** Constant wild glitches. */
+  CONSTANT_WILD = 3,
+}
 
 /**
- * A glitch effect.
- *
- * This effect can influence the {@link ChromaticAberrationEffect}.
- *
+ * A glitch effect. Can be used to influence the {@link ChromaticAberrationEffect}. *
  * Reference: https://github.com/staffantan/unityglitch
- *
  * Warning: This effect cannot be merged with convolution effects.
  */
-
 export class GlitchEffect extends Effect {
   /**
    * A label for generated data textures.
    */
   private static generatedTexture = 'Glitch.Generated';
 
+  delay: Vector2;
+  duration: Vector2;
+  mode: GlitchMode;
   /**
-   * Constructs a new glitch effect.
-   *
-   * @param {Object} [options] - The options.
-   * @param {BlendFunction} [options.blendFunction=BlendFunction.NORMAL] - The blend function of this effect.
-   * @param {Vector2} [options.chromaticAberrationOffset] - A chromatic aberration offset. If provided, the glitch effect will influence this offset.
-   * @param {Vector2} [options.delay] - The minimum and maximum delay between glitch activations in seconds.
-   * @param {Vector2} [options.duration] - The minimum and maximum duration of a glitch in seconds.
-   * @param {Vector2} [options.strength] - The strength of weak and strong glitches.
-   * @param {Texture} [options.perturbationMap] - A perturbation map. If none is provided, a noise texture will be created.
-   * @param {Number} [options.dtSize=64] - The size of the generated noise map. Will be ignored if a perturbation map is provided.
-   * @param {Number} [options.columns=0.05] - The scale of the blocky glitch columns.
-   * @param {Number} [options.ratio=0.85] - The threshold for strong glitches.
+   * The strength of weak and strong glitches.
    */
+  strength: Vector2;
+  chromaticAberrationOffset: Vector2 | null;
+  /**
+   * The threshold for strong glitches, ranging from 0 to 1 where 0 means no
+   * weak glitches and 1 means no strong ones. The default ratio of 0.85
+   * offers a decent balance.
+   */
+  ratio: number;
 
-  constructor(options = { }) {
+  private breakPoint: Vector2;
+  private distortion: Vector2;
+  private perturbationMap: Texture;
+  /**
+   * Random seeds.
+   */
+  private seed: Vector2;
+  /**
+   * A time accumulator.
+   */
+  private time: number;
 
-    const settings = {
-      blendFunction: BlendFunction.NORMAL,
-      chromaticAberrationOffset: null,
-      delay: new Vector2(1.5, 3.5),
-      duration: new Vector2(0.6, 1.0),
-      strength: new Vector2(0.3, 1.0),
-      columns: 0.05,
-      ratio: 0.85,
-      perturbationMap: null,
-      dtSize: 64,                             ...options};
-
-    super('GlitchEffect', fragment, {
-
-      blendFunction: settings.blendFunction,
-
+  constructor(
+    {
+      blendFunction = BlendFunction.NORMAL,
+      chromaticAberrationOffset = null,
+      delay = new Vector2(1.5, 3.5),
+      duration = new Vector2(0.6, 1.0),
+      strength = new Vector2(0.3, 1.0),
+      columns = 0.05,
+      ratio = 0.85,
+      perturbationMap = null,
+      dtSize = 64,
+    }: Partial<GlitchEffectOptions> = { }
+  ) {
+    super(EffectName.Glitch, fragment, {
+      blendFunction,
       uniforms: new Map([
         ['perturbationMap', new Uniform(null)],
-        ['columns', new Uniform(settings.columns)],
+        ['columns', new Uniform(columns)],
         ['active', new Uniform(false)],
         ['random', new Uniform(0.02)],
         ['seed', new Uniform(new Vector2())],
         ['distortion', new Uniform(new Vector2())],
       ]),
-
     });
 
-    /**
-     * The current perturbation map.
-     *
-     * @type {Texture}
-     * @private
-     */
-
-    this.perturbationMap = null;
-
-    this.setPerturbationMap((settings.perturbationMap === null) ?
-      this.generatePerturbationMap(settings.dtSize) :
-      settings.perturbationMap);
-
-    this.perturbationMap.generateMipmaps = false;
-
-    /**
-     * The minimum and maximum delay between glitch activations in seconds.
-     *
-     * @type {Vector2}
-     */
-
-    this.delay = settings.delay;
-
-    /**
-     * The minimum and maximum duration of a glitch in seconds.
-     *
-     * @type {Vector2}
-     */
-
-    this.duration = settings.duration;
-
-    /**
-     * A random glitch break point.
-     *
-     * @type {Number}
-     * @private
-     */
-
+    this.chromaticAberrationOffset = chromaticAberrationOffset;
+    this.delay = delay;
+    this.duration = duration;
+    this.mode = GlitchMode.SPORADIC;
+    this.ratio = ratio;
+    this.strength = strength;
+    this.time = 0;
+    this.distortion = this.uniforms.get('distortion')!.value;
+    this.seed = this.uniforms.get('seed')!.value;
     this.breakPoint = new Vector2(
       randomFloat(this.delay.x, this.delay.y),
       randomFloat(this.duration.x, this.duration.y)
     );
 
-    /**
-     * A time accumulator.
-     *
-     * @type {Number}
-     * @private
-     */
+    this.perturbationMap = perturbationMap === null
+      ? this.generatePerturbationMap(dtSize)
+      : perturbationMap;
 
-    this.time = 0;
-
-    /**
-     * Random seeds.
-     *
-     * @type {Vector2}
-     * @private
-     */
-
-    this.seed = this.uniforms.get('seed').value;
-
-    /**
-     * A distortion vector.
-     *
-     * @type {Vector2}
-     * @private
-     */
-
-    this.distortion = this.uniforms.get('distortion').value;
-
-    /**
-     * The effect mode.
-     *
-     * @type {GlitchMode}
-     */
-
-    this.mode = GlitchMode.SPORADIC;
-
-    /**
-     * The strength of weak and strong glitches.
-     *
-     * @type {Vector2}
-     */
-
-    this.strength = settings.strength;
-
-    /**
-     * The threshold for strong glitches, ranging from 0 to 1 where 0 means no
-     * weak glitches and 1 means no strong ones. The default ratio of 0.85
-     * offers a decent balance.
-     *
-     * @type {Number}
-     */
-
-    this.ratio = settings.ratio;
-
-    /**
-     * The chromatic aberration offset.
-     *
-     * @type {Vector2}
-     */
-
-    this.chromaticAberrationOffset = settings.chromaticAberrationOffset;
-
+    this.setPerturbationMap(this.perturbationMap);
+    this.perturbationMap.generateMipmaps = false;
   }
 
   /**
    * Indicates whether the glitch effect is currently active.
-   *
-   * @type {Boolean}
    */
-
-  get active() {
-
-    return this.uniforms.get('active').value;
-
+  get active(): boolean {
+    return this.uniforms.get('active')!.value;
   }
 
   /**
    * Returns the current perturbation map.
-   *
-   * @return {Texture} The current perturbation map.
    */
-
   getPerturbationMap() {
-
     return this.perturbationMap;
-
   }
 
   /**
    * Replaces the current perturbation map with the given one.
-   *
    * The current map will be disposed if it was generated by this effect.
-   *
-   * @param {Texture} perturbationMap - The new perturbation map.
    */
-
-  setPerturbationMap(perturbationMap) {
-
-    if (this.perturbationMap !== null && this.perturbationMap.name === generatedTexture) {
-
+  setPerturbationMap(perturbationMap: Texture) {
+    if (this.perturbationMap !== null && this.perturbationMap.name === GlitchEffect.generatedTexture) {
       this.perturbationMap.dispose();
-
     }
 
     perturbationMap.wrapS = perturbationMap.wrapT = RepeatWrapping;
     perturbationMap.magFilter = perturbationMap.minFilter = NearestFilter;
 
     this.perturbationMap = perturbationMap;
-    this.uniforms.get('perturbationMap').value = perturbationMap;
-
+    this.uniforms.get('perturbationMap')!.value = perturbationMap;
   }
 
-  /**
-   * Generates a perturbation map.
-   *
-   * @param {Number} [size=64] - The texture size.
-   * @return {DataTexture} The perturbation map.
-   */
-
-  generatePerturbationMap(size = 64) {
-
+  generatePerturbationMap(size = 64): DataTexture {
     const pixels = size * size;
     const data = new Float32Array(pixels * 3);
 
-    let i, x;
+    let i;
+    let x;
 
     for (i = 0; i < pixels; ++i) {
-
       x = Math.random();
-
       data[i * 3] = x;
       data[i * 3 + 1] = x;
       data[i * 3 + 2] = x;
-
     }
 
     const map = new DataTexture(data, size, size, RGBFormat, FloatType);
-    map.name = generatedTexture;
+    map.name = GlitchEffect.generatedTexture;
     map.needsUpdate = true;
 
     return map;
-
   }
 
-  /**
-   * Updates this effect.
-   *
-   * @param {WebGLRenderer} renderer - The renderer.
-   * @param {WebGLRenderTarget} inputBuffer - A frame buffer that contains the result of the previous pass.
-   * @param {Number} [delta] - The time between the last frame and the current one in seconds.
-   */
-
-  update(renderer, inputBuffer, delta) {
-
+  update(
+    renderer: WebGLRenderer,
+    inputBuffer: WebGLRenderTarget,
+    delta: number
+  ) {
     const mode = this.mode;
     const breakPoint = this.breakPoint;
     const offset = this.chromaticAberrationOffset;
@@ -275,34 +196,29 @@ export class GlitchEffect extends Effect {
 
     let time = this.time;
     let active = false;
-    let r = 0.0, a = 0.0;
+    let r = 0.0;
+    let a = 0.0;
     let trigger;
 
     if (mode !== GlitchMode.DISABLED) {
-
       if (mode === GlitchMode.SPORADIC) {
-
         time += delta;
         trigger = (time > breakPoint.x);
 
         if (time >= (breakPoint.x + breakPoint.y)) {
-
           breakPoint.set(
             randomFloat(this.delay.x, this.delay.y),
             randomFloat(this.duration.x, this.duration.y)
           );
 
           time = 0;
-
         }
-
       }
 
       r = Math.random();
-      this.uniforms.get('random').value = r;
+      this.uniforms.get('random')!.value = r;
 
       if ((trigger && r > this.ratio) || mode === GlitchMode.CONSTANT_WILD) {
-
         active = true;
 
         r *= s.y * 0.03;
@@ -310,9 +226,8 @@ export class GlitchEffect extends Effect {
 
         this.seed.set(randomFloat(-s.y, s.y), randomFloat(-s.y, s.y));
         this.distortion.set(randomFloat(0.0, 1.0), randomFloat(0.0, 1.0));
-
-      } else if (trigger || mode === GlitchMode.CONSTANT_MILD) {
-
+      }
+      else if (trigger || mode === GlitchMode.CONSTANT_MILD) {
         active = true;
 
         r *= s.x * 0.03;
@@ -320,48 +235,20 @@ export class GlitchEffect extends Effect {
 
         this.seed.set(randomFloat(-s.x, s.x), randomFloat(-s.x, s.x));
         this.distortion.set(randomFloat(0.0, 1.0), randomFloat(0.0, 1.0));
-
       }
 
       this.time = time;
-
     }
 
     if (offset !== null) {
-
       if (active) {
-
         offset.set(Math.cos(a), Math.sin(a)).multiplyScalar(r);
-
-      } else {
-
-        offset.set(0.0, 0.0);
-
       }
-
+      else {
+        offset.set(0.0, 0.0);
+      }
     }
 
-    this.uniforms.get('active').value = active;
-
+    this.uniforms.get('active')!.value = active;
   }
-
 }
-
-/**
- * A glitch mode enumeration.
- *
- * @type {Object}
- * @property {Number} DISABLED - No glitches.
- * @property {Number} SPORADIC - Sporadic glitches.
- * @property {Number} CONSTANT_MILD - Constant mild glitches.
- * @property {Number} CONSTANT_WILD - Constant wild glitches.
- */
-
-export const GlitchMode = {
-
-  DISABLED: 0,
-  SPORADIC: 1,
-  CONSTANT_MILD: 2,
-  CONSTANT_WILD: 3,
-
-};
