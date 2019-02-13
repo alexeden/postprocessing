@@ -90,9 +90,9 @@ export class SMAAUtils {
   /**
    * A smoothing static readonly for =  small U-patterns=> .
    *
-   * @param {Number} d - A smoothing factor.
-   * @param {Box2} b - The area that should be smoothed.
-   * @return {Box2} The smoothed area.
+   * @param d - A smoothing factor.
+   * @param b - The area that should be smoothed.
+   * @return The smoothed area.
    */
   static readonly smoothArea = (d: number, b: Box2) => {
 
@@ -104,10 +104,10 @@ export class SMAAUtils {
     const b2X = Math.sqrt(a2.x * 2.0) * 0.5;
     const b2Y = Math.sqrt(a2.y * 2.0) * 0.5;
 
-    const p = saturate(d / SMOOTH_MAX_DISTANCE);
+    const p = SMAAUtils.saturate(d / SMOOTH_MAX_DISTANCE);
 
-    a1.set(lerp(b1X, a1.x, p), lerp(b1Y, a1.y, p));
-    a2.set(lerp(b2X, a2.x, p), lerp(b2Y, a2.y, p));
+    a1.set(SMAAUtils.lerp(b1X, a1.x, p), SMAAUtils.lerp(b1Y, a1.y, p));
+    a2.set(SMAAUtils.lerp(b2X, a2.x, p), SMAAUtils.lerp(b2Y, a2.y, p));
 
     return b;
 
@@ -116,13 +116,18 @@ export class SMAAUtils {
   /**
    * Calculates the area under the line p1 -> p2, for the pixels (x, x + 1).
    *
-   * @param {Vector2} p1 - The starting point of the line.
-   * @param {Vector2} p2 - The ending point of the line.
-   * @param {Number} x - The pixel index.
-   * @param {Vector2} result - A target vector to store the area in.
-   * @return {Vector2} The area.
+   * @param p1 - The starting point of the line.
+   * @param p2 - The ending point of the line.
+   * @param x - The pixel index.
+   * @param result - A target vector to store the area in.
+   * @return The area.
    */
-  static readonly calculateOrthogonalArea = (p1, p2, x: number, result) => {
+  static readonly calculateOrthogonalArea = (
+    p1: Vector2,
+    p2: Vector2,
+    x: number,
+    result: Vector2
+  ) => {
 
     const dX = p2.x - p1.x;
     const dY = p2.y - p1.y;
@@ -133,68 +138,54 @@ export class SMAAUtils {
     const y1 = p1.y + dY * (x1 - p1.x) / dX;
     const y2 = p1.y + dY * (x2 - p1.x) / dX;
 
-    let a, a1, a2, t;
+    let a;
+    let a1;
+    let a2;
+    let t;
 
     // Check if x is inside the area.
     if ((x1 >= p1.x && x1 < p2.x) || (x2 > p1.x && x2 <= p2.x)) {
-
       // Check if this is a trapezoid.
       if (Math.sign(y1) === Math.sign(y2) || Math.abs(y1) < 1e-4 || Math.abs(y2) < 1e-4) {
-
         a = (y1 + y2) / 2.0;
-
         if (a < 0.0) {
-
           result.set(Math.abs(a), 0.0);
-
         }
         else {
           result.set(0.0, Math.abs(a));
-
         }
-
       }
       else {
         // Two triangles.
         t = -p1.y * dX / dY + p1.x;
-
         a1 = (t > p1.x) ? y1 * (t - Math.trunc(t)) / 2.0 : 0.0;
         a2 = (t < p2.x) ? y2 * (1.0 - (t - Math.trunc(t))) / 2.0 : 0.0;
-
         a = (Math.abs(a1) > Math.abs(a2)) ? a1 : -a2;
-
         if (a < 0.0) {
-
           result.set(Math.abs(a1), Math.abs(a2));
-
         }
         else {
           result.set(Math.abs(a2), Math.abs(a1));
-
         }
-
       }
-
     }
     else {
       result.set(0, 0);
-
     }
 
     return result;
-
   }
 
   /**
    * Calculates the area for a given pattern and distances to the left and to the
    * right, biased by an offset.
    *
-   * @param {Number} pattern - A pattern index.
-   * @param {Number} left - The left distance.
-   * @param {Number} right - The right distance.
-   * @param {Number} offset - An offset.
-   * @param {Vector2} result - A target vector to store the area in.
-   * @return {Vector2} The orthogonal area.
+   * @param pattern - A pattern index.
+   * @param left - The left distance.
+   * @param right - The right distance.
+   * @param offset - An offset.
+   * @param result - A target vector to store the area in.
+   * @return The orthogonal area.
    */
   static readonly calculateOrthogonalAreaForPattern = (
     pattern: number,
@@ -203,7 +194,6 @@ export class SMAAUtils {
     offset: number,
     result: Vector2
   ) => {
-
     const p1 = b0.min;
     const p2 = b0.max;
     const a1 = b1.min;
@@ -215,8 +205,7 @@ export class SMAAUtils {
      * o2   |
      *
      *      <---d--->
-    */
-
+     */
     const o1 = 0.5 + offset;
     const o2 = 0.5 + offset - 1.0;
     const d = left + right + 1;
@@ -235,11 +224,8 @@ export class SMAAUtils {
          * make it converge with the unfiltered pattern 0.
          * The pattern 0 must not be filtered to avoid artifacts.
          */
-
         if (left <= right) {
-
-          calculateOrthogonalArea(p1.set(0.0, o2), p2.set(d / 2.0, 0.0), left, result);
-
+          SMAAUtils.calculateOrthogonalArea(p1.set(0.0, o2), p2.set(d / 2.0, 0.0), left, result);
         }
         else {
           result.set(0, 0);
@@ -250,11 +236,8 @@ export class SMAAUtils {
         /*    ------.
          *          |
          */
-
         if (left >= right) {
-
-          calculateOrthogonalArea(p1.set(d / 2.0, 0.0), p2.set(d, o2), left, result);
-
+          SMAAUtils.calculateOrthogonalArea(p1.set(d / 2.0, 0.0), p2.set(d, o2), left, result);
         }
         else {
           result.set(0, 0);
@@ -265,11 +248,10 @@ export class SMAAUtils {
         /*   .------.
          *   |      |
          */
+        SMAAUtils.calculateOrthogonalArea(p1.set(0.0, o2), p2.set(d / 2.0, 0.0), left, a1);
+        SMAAUtils.calculateOrthogonalArea(p1.set(d / 2.0, 0.0), p2.set(d, o2), left, a2);
 
-        calculateOrthogonalArea(p1.set(0.0, o2), p2.set(d / 2.0, 0.0), left, a1);
-        calculateOrthogonalArea(p1.set(d / 2.0, 0.0), p2.set(d, o2), left, a2);
-
-        smoothArea(d, a);
+        SMAAUtils.smoothArea(d, a);
         result.addVectors(a1, a2);
         break;
       }
@@ -277,11 +259,8 @@ export class SMAAUtils {
         /*   |
          *   `------
          */
-
         if (left <= right) {
-
-          calculateOrthogonalArea(p1.set(0.0, o1), p2.set(d / 2.0, 0.0), left, result);
-
+          SMAAUtils.calculateOrthogonalArea(p1.set(0.0, o1), p2.set(d / 2.0, 0.0), left, result);
         }
         else {
           result.set(0, 0);
@@ -307,18 +286,14 @@ export class SMAAUtils {
          * L pattern. To avoid discontinuities, the full offsetted Z
          * revectorization is blended with partially offsetted L patterns.
          */
-
         if (Math.abs(offset) > 0.0) {
-
-          calculateOrthogonalArea(p1.set(0.0, o1), p2.set(d, o2), left, a1);
-          calculateOrthogonalArea(p1.set(0.0, o1), p2.set(d / 2.0, 0.0), left, a2);
-          a2.add(calculateOrthogonalArea(p1.set(d / 2.0, 0.0), p2.set(d, o2), left, result));
-
+          SMAAUtils.calculateOrthogonalArea(p1.set(0.0, o1), p2.set(d, o2), left, a1);
+          SMAAUtils.calculateOrthogonalArea(p1.set(0.0, o1), p2.set(d / 2.0, 0.0), left, a2);
+          a2.add(SMAAUtils.calculateOrthogonalArea(p1.set(d / 2.0, 0.0), p2.set(d, o2), left, result));
           result.addVectors(a1, a2).divideScalar(2.0);
-
         }
         else {
-          calculateOrthogonalArea(p1.set(0.0, o1), p2.set(d, o2), left, result);
+          SMAAUtils.calculateOrthogonalArea(p1.set(0.0, o1), p2.set(d, o2), left, result);
         }
         break;
       }
@@ -327,18 +302,15 @@ export class SMAAUtils {
          *   +------.
          *   |      |
          */
-        calculateOrthogonalArea(p1.set(0.0, o1), p2.set(d, o2), left, result);
+        SMAAUtils.calculateOrthogonalArea(p1.set(0.0, o1), p2.set(d, o2), left, result);
         break;
       }
       case 8: {
         /*          |
          *    ------´
          */
-
         if (left >= right) {
-
-          calculateOrthogonalArea(p1.set(d / 2.0, 0.0), p2.set(d, o1), left, result);
-
+          SMAAUtils.calculateOrthogonalArea(p1.set(d / 2.0, 0.0), p2.set(d, o1), left, result);
         }
         else {
           result.set(0, 0);
@@ -350,18 +322,14 @@ export class SMAAUtils {
          *   .------´
          *   |
          */
-
         if (Math.abs(offset) > 0.0) {
-
-          calculateOrthogonalArea(p1.set(0.0, o2), p2.set(d, o1), left, a1);
-          calculateOrthogonalArea(p1.set(0.0, o2), p2.set(d / 2.0, 0.0), left, a2);
-          a2.add(calculateOrthogonalArea(p1.set(d / 2.0, 0.0), p2.set(d, o1), left, result));
-
+          SMAAUtils.calculateOrthogonalArea(p1.set(0.0, o2), p2.set(d, o1), left, a1);
+          SMAAUtils.calculateOrthogonalArea(p1.set(0.0, o2), p2.set(d / 2.0, 0.0), left, a2);
+          a2.add(SMAAUtils.calculateOrthogonalArea(p1.set(d / 2.0, 0.0), p2.set(d, o1), left, result));
           result.addVectors(a1, a2).divideScalar(2.0);
-
         }
         else {
-          calculateOrthogonalArea(p1.set(0.0, o2), p2.set(d, o1), left, result);
+          SMAAUtils.calculateOrthogonalArea(p1.set(0.0, o2), p2.set(d, o1), left, result);
         }
         break;
       }
@@ -378,17 +346,16 @@ export class SMAAUtils {
          *   .------+
          *   |      |
          */
-        calculateOrthogonalArea(p1.set(0.0, o2), p2.set(d, o1), left, result);
+        SMAAUtils.calculateOrthogonalArea(p1.set(0.0, o2), p2.set(d, o1), left, result);
         break;
       }
       case 12: {
         /*   |      |
          *   `------´
          */
-        calculateOrthogonalArea(p1.set(0.0, o1), p2.set(d / 2.0, 0.0), left, a1);
-        calculateOrthogonalArea(p1.set(d / 2.0, 0.0), p2.set(d, o1), left, a2);
-
-        smoothArea(d, a);
+        SMAAUtils.calculateOrthogonalArea(p1.set(0.0, o1), p2.set(d / 2.0, 0.0), left, a1);
+        SMAAUtils.calculateOrthogonalArea(p1.set(d / 2.0, 0.0), p2.set(d, o1), left, a2);
+        SMAAUtils.smoothArea(d, a);
         result.addVectors(a1, a2);
         break;
       }
@@ -397,7 +364,7 @@ export class SMAAUtils {
          *   +------´
          *   |
          */
-        calculateOrthogonalArea(p1.set(0.0, o2), p2.set(d, o1), left, result);
+        SMAAUtils.calculateOrthogonalArea(p1.set(0.0, o2), p2.set(d, o1), left, result);
         break;
       }
       case 14: {
@@ -405,7 +372,7 @@ export class SMAAUtils {
          *   `------+
          *          |
          */
-        calculateOrthogonalArea(p1.set(0.0, o1), p2.set(d, o2), left, result);
+        SMAAUtils.calculateOrthogonalArea(p1.set(0.0, o1), p2.set(d, o2), left, result);
         break;
       }
       case 15: {
@@ -417,64 +384,73 @@ export class SMAAUtils {
         break;
       }
     }
+
     return result;
   }
 
   /**
    * Determines whether the given pixel is inside the specified area.
    *
-   * @param {Vector2} p1 - The lower bounds of the area.
-   * @param {Vector2} p2 - The upper bounds of the area.
-   * @param {Vector2} x - The X-coordinates.
-   * @param {Vector2} y - The Y-coordinates.
-   * @return {Vector2} Whether the pixel lies inside the area.
+   * @param p1 - The lower bounds of the area.
+   * @param p2 - The upper bounds of the area.
+   * @param x - The X-coordinates.
+   * @param y - The Y-coordinates.
+   * @return Whether the pixel lies inside the area.
    */
-  static readonly isInsideArea = (p1, p2, x, y) => {
-
+  static readonly isInsideArea = (
+    p1: Vector2,
+    p2: Vector2,
+    x: number,
+    y: number
+  ) => {
     let result = p1.equals(p2);
 
-    let xm, ym;
-    let a, b, c;
+    let xm;
+    let ym;
+    let a;
+    let b;
+    let c;
 
     if (!result) {
-
       xm = (p1.x + p2.x) / 2.0;
       ym = (p1.y + p2.y) / 2.0;
-
       a = p2.y - p1.y;
       b = p1.x - p2.x;
-
       c = a * (x - xm) + b * (y - ym);
-
       result = (c > 0.0);
-
     }
 
     return result;
-
   }
 
   /**
    * Calculates the area under the line p1 -> p2 for the pixel p using brute force
    * sampling.
    *
-   * @param {Vector2} p1 - The lower bounds of the area.
-   * @param {Vector2} p2 - The upper bounds of the area.
-   * @param {Number} pX - The X-coordinates.
-   * @param {Number} pY - The Y-coordinates.
-   * @return {Number} The amount of pixels inside the area relative to the total amount of sampled pixels.
+   * @param p1 - The lower bounds of the area.
+   * @param p2 - The upper bounds of the area.
+   * @param pX - The X-coordinates.
+   * @param pY - The Y-coordinates.
+   * @return The amount of pixels inside the area relative to the total amount of sampled pixels.
    */
-  static readonly calculateDiagonalAreaForPixel = (p1, p2, pX: number, pY: number) => {
-
+  static readonly calculateDiagonalAreaForPixel = (
+    p1: Vector2,
+    p2: Vector2,
+    pX: number,
+    pY: number
+  ) => {
     let a;
-    let x, y;
-    let offsetX, offsetY;
+    let x;
+    let y;
+    let offsetX;
+    let offsetY;
 
+    // tslint:disable-next-line:ban-comma-operator
     for (a = 0, y = 0; y < DIAGONAL_SAMPLES; ++y) {
       for (x = 0; x < DIAGONAL_SAMPLES; ++x) {
         offsetX = x / (DIAGONAL_SAMPLES - 1.0);
         offsetY = y / (DIAGONAL_SAMPLES - 1.0);
-        if (isInsideArea(p1, p2, pX + offsetX, pY + offsetY)) {
+        if (SMAAUtils.isInsideArea(p1, p2, pX + offsetX, pY + offsetY)) {
           ++a;
         }
       }
@@ -487,32 +463,29 @@ export class SMAAUtils {
    * Calculates the area under the line p1 -> p2. This includes the pixel and its
    * opposite.
    *
-   * @param {Number} pattern - A pattern index.
-   * @param {Vector2} p1 - The lower bounds of the area.
-   * @param {Vector2} p2 - The upper bounds of the area.
-   * @param {Number} left - The left distance.
-   * @param {Float32Array} offset - An offset.
-   * @param {Vector2} result - A target vector to store the area in.
-   * @return {Vector2} The area.
+   * @param pattern - A pattern index.
+   * @param p1 - The lower bounds of the area.
+   * @param p2 - The upper bounds of the area.
+   * @param left - The left distance.
+   * @param offset - An offset.
+   * @param result - A target vector to store the area in.
+   * @return The area.
    */
   static readonly calculateDiagonalArea = (
     pattern: number,
-    p1,
-    p2,
+    p1: Vector2,
+    p2: Vector2,
     left: number,
-    offset,
-    result
+    offset: Float32Array,
+    result: Vector2
   ) => {
-
     const e = diagonalEdges[pattern];
     const e1 = e[0];
     const e2 = e[1];
 
     if (e1 > 0) {
-
       p1.x += offset[0];
       p1.y += offset[1];
-
     }
 
     if (e2 > 0) {
@@ -521,8 +494,8 @@ export class SMAAUtils {
     }
 
     return result.set(
-      1.0 - calculateDiagonalAreaForPixel(p1, p2, 1.0 + left, 0.0 + left),
-      calculateDiagonalAreaForPixel(p1, p2, 1.0 + left, 1.0 + left)
+      1.0 - SMAAUtils.calculateDiagonalAreaForPixel(p1, p2, 1.0 + left, 0.0 + left),
+      SMAAUtils.calculateDiagonalAreaForPixel(p1, p2, 1.0 + left, 1.0 + left)
     );
   }
 
@@ -530,19 +503,19 @@ export class SMAAUtils {
    * Calculates the area for a given pattern and distances to the left and to the
    * right, biased by an offset.
    *
-   * @param {Number} pattern - A pattern index.
-   * @param {Number} left - The left distance.
-   * @param {Number} right - The right distance.
-   * @param {Float32Array} offset - An offset.
-   * @param {Vector2} result - A target vector to store the area in.
-   * @return {Vector2} The orthogonal area.
+   * @param pattern - A pattern index.
+   * @param left - The left distance.
+   * @param right - The right distance.
+   * @param offset - An offset.
+   * @param result - A target vector to store the area in.
+   * @return The orthogonal area.
    */
   static readonly calculateDiagonalAreaForPattern = (
     pattern: number,
     left: number,
     right: number,
-    offset,
-    result
+    offset: Float32Array,
+    result: Vector2
   ) => {
     const p1 = b0.min;
     const p2 = b0.max;
@@ -568,13 +541,13 @@ export class SMAAUtils {
          */
 
         // First possibility.
-        calculateDiagonalArea(pattern, p1.set(1.0, 1.0), p2.set(1.0 + d, 1.0 + d), left, offset, a1);
+        SMAAUtils.calculateDiagonalArea(pattern, p1.set(1.0, 1.0), p2.set(1.0 + d, 1.0 + d), left, offset, a1);
 
         // Second possibility.
-        calculateDiagonalArea(pattern, p1.set(1.0, 0.0), p2.set(1.0 + d, 0.0 + d), left, offset, a2);
+        SMAAUtils.calculateDiagonalArea(pattern, p1.set(1.0, 0.0), p2.set(1.0 + d, 0.0 + d), left, offset, a2);
 
         // Blend both possibilities together
-        result.addVectors(a1, a2).divideScalar(2.0)
+        result.addVectors(a1, a2).divideScalar(2.0);
         break;
       }
       case 1: {
@@ -585,9 +558,8 @@ export class SMAAUtils {
          *   |
          *   |
          */
-
-        calculateDiagonalArea(pattern, p1.set(1.0, 0.0), p2.set(0.0 + d, 0.0 + d), left, offset, a1);
-        calculateDiagonalArea(pattern, p1.set(1.0, 0.0), p2.set(1.0 + d, 0.0 + d), left, offset, a2);
+        SMAAUtils.calculateDiagonalArea(pattern, p1.set(1.0, 0.0), p2.set(0.0 + d, 0.0 + d), left, offset, a1);
+        SMAAUtils.calculateDiagonalArea(pattern, p1.set(1.0, 0.0), p2.set(1.0 + d, 0.0 + d), left, offset, a2);
         result.addVectors(a1, a2).divideScalar(2.0);
         break;
       }
@@ -598,9 +570,8 @@ export class SMAAUtils {
          *   .-´
          *   ´
          */
-
-        calculateDiagonalArea(pattern, p1.set(0.0, 0.0), p2.set(1.0 + d, 0.0 + d), left, offset, a1);
-        calculateDiagonalArea(pattern, p1.set(1.0, 0.0), p2.set(1.0 + d, 0.0 + d), left, offset, a2);
+        SMAAUtils.calculateDiagonalArea(pattern, p1.set(0.0, 0.0), p2.set(1.0 + d, 0.0 + d), left, offset, a1);
+        SMAAUtils.calculateDiagonalArea(pattern, p1.set(1.0, 0.0), p2.set(1.0 + d, 0.0 + d), left, offset, a2);
         result.addVectors(a1, a2).divideScalar(2.0);
         break;
       }
@@ -613,7 +584,7 @@ export class SMAAUtils {
          *   |
          *   |
          */
-        calculateDiagonalArea(pattern, p1.set(1.0, 0.0), p2.set(1.0 + d, 0.0 + d), left, offset, result);
+        SMAAUtils.calculateDiagonalArea(pattern, p1.set(1.0, 0.0), p2.set(1.0 + d, 0.0 + d), left, offset, result);
         break;
       }
       case 4: {
@@ -622,9 +593,8 @@ export class SMAAUtils {
          *     .-´
          * ----´
          */
-
-        calculateDiagonalArea(pattern, p1.set(1.0, 1.0), p2.set(0.0 + d, 0.0 + d), left, offset, a1);
-        calculateDiagonalArea(pattern, p1.set(1.0, 1.0), p2.set(1.0 + d, 0.0 + d), left, offset, a2);
+        SMAAUtils.calculateDiagonalArea(pattern, p1.set(1.0, 1.0), p2.set(0.0 + d, 0.0 + d), left, offset, a1);
+        SMAAUtils.calculateDiagonalArea(pattern, p1.set(1.0, 1.0), p2.set(1.0 + d, 0.0 + d), left, offset, a2);
         result.addVectors(a1, a2).divideScalar(2.0);
         break;
       }
@@ -636,9 +606,8 @@ export class SMAAUtils {
          *   |
          *   |
          */
-
-        calculateDiagonalArea(pattern, p1.set(1.0, 1.0), p2.set(0.0 + d, 0.0 + d), left, offset, a1);
-        calculateDiagonalArea(pattern, p1.set(1.0, 0.0), p2.set(1.0 + d, 0.0 + d), left, offset, a2);
+        SMAAUtils.calculateDiagonalArea(pattern, p1.set(1.0, 1.0), p2.set(0.0 + d, 0.0 + d), left, offset, a1);
+        SMAAUtils.calculateDiagonalArea(pattern, p1.set(1.0, 0.0), p2.set(1.0 + d, 0.0 + d), left, offset, a2);
         result.addVectors(a1, a2).divideScalar(2.0);
         break;
       }
@@ -648,7 +617,7 @@ export class SMAAUtils {
          *     .-´
          * ----´
          */
-        calculateDiagonalArea(pattern, p1.set(1.0, 1.0), p2.set(1.0 + d, 0.0 + d), left, offset, result);
+        SMAAUtils.calculateDiagonalArea(pattern, p1.set(1.0, 1.0), p2.set(1.0 + d, 0.0 + d), left, offset, result);
         break;
       }
       case 7: {
@@ -659,9 +628,8 @@ export class SMAAUtils {
          *   |
          *   |
          */
-
-        calculateDiagonalArea(pattern, p1.set(1.0, 1.0), p2.set(1.0 + d, 0.0 + d), left, offset, a1);
-        calculateDiagonalArea(pattern, p1.set(1.0, 0.0), p2.set(1.0 + d, 0.0 + d), left, offset, a2);
+        SMAAUtils.calculateDiagonalArea(pattern, p1.set(1.0, 1.0), p2.set(1.0 + d, 0.0 + d), left, offset, a1);
+        SMAAUtils.calculateDiagonalArea(pattern, p1.set(1.0, 0.0), p2.set(1.0 + d, 0.0 + d), left, offset, a2);
         result.addVectors(a1, a2).divideScalar(2.0);
         break;
       }
@@ -673,9 +641,8 @@ export class SMAAUtils {
          *   .-´
          *   ´
          */
-
-        calculateDiagonalArea(pattern, p1.set(0.0, 0.0), p2.set(1.0 + d, 1.0 + d), left, offset, a1);
-        calculateDiagonalArea(pattern, p1.set(1.0, 0.0), p2.set(1.0 + d, 1.0 + d), left, offset, a2);
+        SMAAUtils.calculateDiagonalArea(pattern, p1.set(0.0, 0.0), p2.set(1.0 + d, 1.0 + d), left, offset, a1);
+        SMAAUtils.calculateDiagonalArea(pattern, p1.set(1.0, 0.0), p2.set(1.0 + d, 1.0 + d), left, offset, a2);
         result.addVectors(a1, a2).divideScalar(2.0);
         break;
       }
@@ -688,7 +655,7 @@ export class SMAAUtils {
          *   |
          *   |
          */
-        calculateDiagonalArea(pattern, p1.set(1.0, 0.0), p2.set(1.0 + d, 1.0 + d), left, offset, result);
+        SMAAUtils.calculateDiagonalArea(pattern, p1.set(1.0, 0.0), p2.set(1.0 + d, 1.0 + d), left, offset, result);
         break;
       }
       case 10: {
@@ -699,9 +666,8 @@ export class SMAAUtils {
          *   .-´
          *   ´
          */
-
-        calculateDiagonalArea(pattern, p1.set(0.0, 0.0), p2.set(1.0 + d, 1.0 + d), left, offset, a1);
-        calculateDiagonalArea(pattern, p1.set(1.0, 0.0), p2.set(1.0 + d, 0.0 + d), left, offset, a2);
+        SMAAUtils.calculateDiagonalArea(pattern, p1.set(0.0, 0.0), p2.set(1.0 + d, 1.0 + d), left, offset, a1);
+        SMAAUtils.calculateDiagonalArea(pattern, p1.set(1.0, 0.0), p2.set(1.0 + d, 0.0 + d), left, offset, a2);
         result.addVectors(a1, a2).divideScalar(2.0);
         break;
       }
@@ -714,9 +680,8 @@ export class SMAAUtils {
          *   |
          *   |
          */
-
-        calculateDiagonalArea(pattern, p1.set(1.0, 0.0), p2.set(1.0 + d, 1.0 + d), left, offset, a1);
-        calculateDiagonalArea(pattern, p1.set(1.0, 0.0), p2.set(1.0 + d, 0.0 + d), left, offset, a2);
+        SMAAUtils.calculateDiagonalArea(pattern, p1.set(1.0, 0.0), p2.set(1.0 + d, 1.0 + d), left, offset, a1);
+        SMAAUtils.calculateDiagonalArea(pattern, p1.set(1.0, 0.0), p2.set(1.0 + d, 0.0 + d), left, offset, a2);
         result.addVectors(a1, a2).divideScalar(2.0);
         break;
       }
@@ -727,7 +692,7 @@ export class SMAAUtils {
          *     .-´
          * ----´
          */
-        calculateDiagonalArea(pattern, p1.set(1.0, 1.0), p2.set(1.0 + d, 1.0 + d), left, offset, result);
+        SMAAUtils.calculateDiagonalArea(pattern, p1.set(1.0, 1.0), p2.set(1.0 + d, 1.0 + d), left, offset, result);
         break;
       }
       case 13: {
@@ -740,8 +705,8 @@ export class SMAAUtils {
          *   |
          */
 
-        calculateDiagonalArea(pattern, p1.set(1.0, 1.0), p2.set(1.0 + d, 1.0 + d), left, offset, a1);
-        calculateDiagonalArea(pattern, p1.set(1.0, 0.0), p2.set(1.0 + d, 1.0 + d), left, offset, a2);
+        SMAAUtils.calculateDiagonalArea(pattern, p1.set(1.0, 1.0), p2.set(1.0 + d, 1.0 + d), left, offset, a1);
+        SMAAUtils.calculateDiagonalArea(pattern, p1.set(1.0, 0.0), p2.set(1.0 + d, 1.0 + d), left, offset, a2);
         result.addVectors(a1, a2).divideScalar(2.0);
         break;
       }
@@ -753,8 +718,8 @@ export class SMAAUtils {
          * ----´
          */
 
-        calculateDiagonalArea(pattern, p1.set(1.0, 1.0), p2.set(1.0 + d, 1.0 + d), left, offset, a1);
-        calculateDiagonalArea(pattern, p1.set(1.0, 1.0), p2.set(1.0 + d, 0.0 + d), left, offset, a2);
+        SMAAUtils.calculateDiagonalArea(pattern, p1.set(1.0, 1.0), p2.set(1.0 + d, 1.0 + d), left, offset, a1);
+        SMAAUtils.calculateDiagonalArea(pattern, p1.set(1.0, 1.0), p2.set(1.0 + d, 0.0 + d), left, offset, a2);
         result.addVectors(a1, a2).divideScalar(2.0);
         break;
       }
@@ -768,8 +733,8 @@ export class SMAAUtils {
          *   |
          */
 
-        calculateDiagonalArea(pattern, p1.set(1.0, 1.0), p2.set(1.0 + d, 1.0 + d), left, offset, a1);
-        calculateDiagonalArea(pattern, p1.set(1.0, 0.0), p2.set(1.0 + d, 0.0 + d), left, offset, a2);
+        SMAAUtils.calculateDiagonalArea(pattern, p1.set(1.0, 1.0), p2.set(1.0 + d, 1.0 + d), left, offset, a1);
+        SMAAUtils.calculateDiagonalArea(pattern, p1.set(1.0, 0.0), p2.set(1.0 + d, 0.0 + d), left, offset, a2);
         result.addVectors(a1, a2).divideScalar(2.0);
         break;
       }
@@ -810,10 +775,10 @@ export class SMAAUtils {
       for (y = 0; y < size; ++y) {
         for (x = 0; x < size; ++x) {
           if (orthogonal) {
-            calculateOrthogonalAreaForPattern(i, x, y, offset, result);
+            SMAAUtils.calculateOrthogonalAreaForPattern(i, x, y, offset, result);
           }
           else {
-            calculateDiagonalAreaForPattern(i, x, y, offset, result);
+            SMAAUtils.calculateDiagonalAreaForPattern(i, x, y, offset, result);
           }
           c = (y * size + x) * 2;
           data[c] = result.x * 255;
