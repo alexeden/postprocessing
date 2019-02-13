@@ -22,7 +22,7 @@ import {
 	GlitchEffect,
 	NoiseEffect,
 	SMAAEffect
-} from "../../../src";
+} from "../../../src/index";
 
 /**
  * A glitch demo setup.

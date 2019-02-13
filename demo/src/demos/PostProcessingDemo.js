@@ -1,5 +1,5 @@
 import { Demo } from "three-demo";
-import { RenderPass, SMAAEffect } from "../../../src";
+import { RenderPass, SMAAEffect } from "../../../src/index";
 
 /**
  * A post processing demo base class.

@@ -1,26 +1,26 @@
 import { DemoManager } from "three-demo";
 import { WebGLRenderer } from "three";
-import { EffectComposer } from "../../src";
+import { EffectComposer } from "../../src/index";
 
-import { BloomDemo } from "./demos/BloomDemo.js";
-import { BokehDemo } from "./demos/BokehDemo.js";
-import { ColorCorrectionDemo } from "./demos/ColorCorrectionDemo.js";
-import { RealisticBokehDemo } from "./demos/RealisticBokehDemo.js";
-import { BlurDemo } from "./demos/BlurDemo.js";
-import { DotScreenDemo } from "./demos/DotScreenDemo.js";
+// import { BloomDemo } from "./demos/BloomDemo.js";
+// import { BokehDemo } from "./demos/BokehDemo.js";
+// import { ColorCorrectionDemo } from "./demos/ColorCorrectionDemo.js";
+// import { RealisticBokehDemo } from "./demos/RealisticBokehDemo.js";
+// import { BlurDemo } from "./demos/BlurDemo.js";
+// import { DotScreenDemo } from "./demos/DotScreenDemo.js";
 import { GlitchDemo } from "./demos/GlitchDemo.js";
-import { GridDemo } from "./demos/GridDemo.js";
-import { OutlineDemo } from "./demos/OutlineDemo.js";
-import { PixelationDemo } from "./demos/PixelationDemo.js";
-import { GodRaysDemo } from "./demos/GodRaysDemo.js";
-import { ScanlineDemo } from "./demos/ScanlineDemo.js";
-import { SepiaDemo } from "./demos/SepiaDemo.js";
-import { ShockWaveDemo } from "./demos/ShockWaveDemo.js";
-import { SMAADemo } from "./demos/SMAADemo.js";
-import { SSAODemo } from "./demos/SSAODemo.js";
-import { TextureDemo } from "./demos/TextureDemo.js";
-import { ToneMappingDemo } from "./demos/ToneMappingDemo.js";
-import { VignetteDemo } from "./demos/VignetteDemo.js";
+// import { GridDemo } from "./demos/GridDemo.js";
+// import { OutlineDemo } from "./demos/OutlineDemo.js";
+// import { PixelationDemo } from "./demos/PixelationDemo.js";
+// import { GodRaysDemo } from "./demos/GodRaysDemo.js";
+// import { ScanlineDemo } from "./demos/ScanlineDemo.js";
+// import { SepiaDemo } from "./demos/SepiaDemo.js";
+// import { ShockWaveDemo } from "./demos/ShockWaveDemo.js";
+// import { SMAADemo } from "./demos/SMAADemo.js";
+// import { SSAODemo } from "./demos/SSAODemo.js";
+// import { TextureDemo } from "./demos/TextureDemo.js";
+// import { ToneMappingDemo } from "./demos/ToneMappingDemo.js";
+// import { VignetteDemo } from "./demos/VignetteDemo.js";
 
 /**
  * A renderer.
@@ -141,25 +141,25 @@ window.addEventListener("load", function main(event) {
 	manager.addEventListener("load", onLoad);
 
 	const demos = [
-		new BloomDemo(composer),
-		new BlurDemo(composer),
-		new BokehDemo(composer),
-		new RealisticBokehDemo(composer),
-		new ColorCorrectionDemo(composer),
-		new DotScreenDemo(composer),
-		new GlitchDemo(composer),
-		new GodRaysDemo(composer),
-		new GridDemo(composer),
-		new OutlineDemo(composer),
-		new PixelationDemo(composer),
-		new ScanlineDemo(composer),
-		new SepiaDemo(composer),
-		new ShockWaveDemo(composer),
-		new SMAADemo(composer),
-		new SSAODemo(composer),
-		new TextureDemo(composer),
-		new ToneMappingDemo(composer),
-		new VignetteDemo(composer)
+		// new BloomDemo(composer),
+		// new BlurDemo(composer),
+		// new BokehDemo(composer),
+		// new RealisticBokehDemo(composer),
+		// new ColorCorrectionDemo(composer),
+		// new DotScreenDemo(composer),
+		new GlitchDemo(composer)
+		// new GodRaysDemo(composer),
+		// new GridDemo(composer),
+		// new OutlineDemo(composer),
+		// new PixelationDemo(composer),
+		// new ScanlineDemo(composer),
+		// new SepiaDemo(composer),
+		// new ShockWaveDemo(composer),
+		// new SMAADemo(composer)
+		// new SSAODemo(composer),
+		// new TextureDemo(composer),
+		// new ToneMappingDemo(composer),
+		// new VignetteDemo(composer)
 	];
 
 	if(demos.map((demo) => demo.id).indexOf(window.location.hash.slice(1)) === -1) {
