@@ -18,10 +18,6 @@ export declare class ClearPass extends Pass {
     private static color;
     clearColor: Color | null;
     clearAlpha: number;
-    /**
-     * Constructs a new clear pass.
-     * @param options - Additional options.
-     */
     constructor(partialOptions?: Partial<ClearPassOptions>);
     /**
      * Clears the input buffer or the screen.

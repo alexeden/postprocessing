@@ -1,6 +1,7 @@
 import { BlendFunction } from '../blending';
 import { Uniform } from 'three';
 export declare enum EffectName {
+    ChromaticAberration = "ChromaticAberrationEffect",
     Glitch = "GlitchEffect"
 }
 export declare type PreprocessorMacros = Map<string, string>;
