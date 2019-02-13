@@ -37,6 +37,19 @@ module.exports = {
 				use: "raw-loader"
 			},
 			{
+				test: /\.ts$/,
+				enforce: "pre",
+				use: [
+					{
+						loader: "tslint-loader",
+						options: {
+							configFile: "./tslint.json",
+							tsConfigFile: "src/tsconfig.json"
+						}
+					}
+				]
+			},
+			{
 				test: /\.tsx?$/,
 				exclude: /node_modules/,
 				use: [
