@@ -63,3 +63,4 @@ node_modules
 
 # Temporary files
 *.tmp
+.rpt2_cache
