@@ -96,6 +96,7 @@
 		"rollup-plugin-commonjs": "9.x.x",
 		"rollup-plugin-node-resolve": "4.x.x",
 		"rollup-plugin-string": "2.x.x",
+		"rollup-plugin-typescript2": "^0.19.2",
 		"synthetic-event": "0.x.x",
 		"three": "0.101.x",
 		"three-demo": "3.x.x",
