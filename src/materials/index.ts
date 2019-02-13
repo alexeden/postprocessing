@@ -9,15 +9,17 @@ import { EffectMaterial } from './EffectMaterial';
 // export { GodRaysMaterial } from './GodRaysMaterial';
 // export { LuminanceMaterial } from './LuminanceMaterial';
 // export { OutlineEdgesMaterial } from './OutlineEdgesMaterial';
-// export { SMAAWeightsMaterial } from './SMAAWeightsMaterial';
+import { SMAAWeightsMaterial } from './SMAAWeightsMaterial';
 
 export type PostprocessingMaterial
   = ColorEdgesMaterial
   | CopyMaterial
-  | EffectMaterial;
+  | EffectMaterial
+  | SMAAWeightsMaterial;
 
 export {
   ColorEdgesMaterial,
   CopyMaterial,
   EffectMaterial,
+  SMAAWeightsMaterial,
 };
