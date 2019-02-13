@@ -5,7 +5,7 @@ export * from './lib';
 // export { BokehEffect } from './BokehEffect';
 // export { BrightnessContrastEffect } from './BrightnessContrastEffect';
 // export { ColorAverageEffect } from './ColorAverageEffect';
-// export { ChromaticAberrationEffect } from './ChromaticAberrationEffect';
+export { ChromaticAberrationEffect } from './ChromaticAberrationEffect';
 // export { DepthEffect } from './DepthEffect';
 // export { DotScreenEffect } from './DotScreenEffect';
 export { Effect } from './Effect';
