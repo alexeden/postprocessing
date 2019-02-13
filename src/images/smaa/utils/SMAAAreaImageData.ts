@@ -1,56 +1,41 @@
+// tslint:disable cyclomatic-complexity
 import { Box2, Vector2 } from 'three';
 import { RawImageData } from '../../RawImageData';
 
 /**
  * A box.
- * @private
  */
 const b0 = new Box2();
 
 /**
  * A box.
- * @private
  */
 const b1 = new Box2();
 
 /**
  * The orthogonal texture size.
- * @private
  */
 const ORTHOGONAL_SIZE = 16;
 
 /**
  * The diagonal texture size.
- * @private
  */
 const DIAGONAL_SIZE = 20;
 
 /**
  * The number of samples for calculating areas in the diagonal textures.
  * Diagonal areas are calculated using brute force sampling.
- *
- * @type {Number}
- * @private
  */
-
 const DIAGONAL_SAMPLES = 30;
 
 /**
  * The maximum distance for smoothing U-shapes.
- *
- * @type {Number}
- * @private
  */
-
 const SMOOTH_MAX_DISTANCE = 32;
 
 /**
  * Subsampling offsets for orthogonal areas.
- *
- * @type {Float32Array}
- * @private
  */
-
 const orthogonalSubsamplingOffsets = new Float32Array([
   0.0,
   -0.25,
@@ -63,32 +48,20 @@ const orthogonalSubsamplingOffsets = new Float32Array([
 
 /**
  * Subsampling offset pairs for diagonal areas.
- *
- * @type {Float32Array[]}
- * @private
  */
-
 const diagonalSubsamplingOffsets = [
-
   new Float32Array([0.0, 0.0]),
   new Float32Array([0.25, -0.25]),
   new Float32Array([-0.25, 0.25]),
   new Float32Array([0.125, -0.125]),
   new Float32Array([-0.125, 0.125]),
-
 ];
 
 /**
  * Orthogonal pattern positioning coordinates.
- *
  * Used for placing each pattern subtexture into a specific spot.
- *
- * @type {Uint8Array[]}
- * @private
  */
-
 const orthogonalEdges = [
-
   new Uint8Array([0, 0]),
   new Uint8Array([3, 0]),
   new Uint8Array([0, 3]),
@@ -108,20 +81,13 @@ const orthogonalEdges = [
   new Uint8Array([4, 1]),
   new Uint8Array([1, 4]),
   new Uint8Array([4, 4]),
-
 ];
 
 /**
  * Diagonal pattern positioning coordinates.
- *
  * Used for placing each pattern subtexture into a specific spot.
- *
- * @type {Uint8Array[]}
- * @private
  */
-
 const diagonalEdges = [
-
   new Uint8Array([0, 0]),
   new Uint8Array([1, 0]),
   new Uint8Array([0, 2]),
@@ -141,43 +107,11 @@ const diagonalEdges = [
   new Uint8Array([3, 1]),
   new Uint8Array([2, 3]),
   new Uint8Array([3, 3]),
-
 ];
-
-/**
- * Linearly interpolates between two values.
- *
- * @private
- * @param {Number} a - The initial value.
- * @param {Number} b - The target value.
- * @param {Number} p - The interpolation value.
- * @return {Number} The interpolated value.
- */
-
-function lerp(a, b, p) {
-
-  return a + (b - a) * p;
-
-}
-
-/**
- * Clamps a value to the range [0, 1].
- *
- * @private
- * @param {Number} a - The value.
- * @return {Number} The saturated value.
- */
-
-function saturate(a) {
-
-  return Math.min(Math.max(a, 0.0), 1.0);
-
-}
 
 /**
  * A smoothing function for small U-patterns.
  *
- * @private
  * @param {Number} d - A smoothing factor.
  * @param {Box2} b - The area that should be smoothed.
  * @return {Box2} The smoothed area.
@@ -205,14 +139,12 @@ function smoothArea(d, b) {
 /**
  * Calculates the area under the line p1 -> p2, for the pixels (x, x + 1).
  *
- * @private
  * @param {Vector2} p1 - The starting point of the line.
  * @param {Vector2} p2 - The ending point of the line.
  * @param {Number} x - The pixel index.
  * @param {Vector2} result - A target vector to store the area in.
  * @return {Vector2} The area.
  */
-
 function calculateOrthogonalArea(p1, p2, x, result) {
 
   const dX = p2.x - p1.x;
@@ -238,14 +170,14 @@ function calculateOrthogonalArea(p1, p2, x, result) {
 
         result.set(Math.abs(a), 0.0);
 
-      } else {
-
+      }
+      else {
         result.set(0.0, Math.abs(a));
 
       }
 
-    } else {
-
+    }
+    else {
       // Two triangles.
       t = -p1.y * dX / dY + p1.x;
 
@@ -258,16 +190,16 @@ function calculateOrthogonalArea(p1, p2, x, result) {
 
         result.set(Math.abs(a1), Math.abs(a2));
 
-      } else {
-
+      }
+      else {
         result.set(Math.abs(a2), Math.abs(a1));
 
       }
 
     }
 
-  } else {
-
+  }
+  else {
     result.set(0, 0);
 
   }
@@ -280,7 +212,6 @@ function calculateOrthogonalArea(p1, p2, x, result) {
  * Calculates the area for a given pattern and distances to the left and to the
  * right, biased by an offset.
  *
- * @private
  * @param {Number} pattern - A pattern index.
  * @param {Number} left - The left distance.
  * @param {Number} right - The right distance.
@@ -334,8 +265,8 @@ function calculateOrthogonalAreaForPattern(pattern, left, right, offset, result)
 
         calculateOrthogonalArea(p1.set(0.0, o2), p2.set(d / 2.0, 0.0), left, result);
 
-      } else {
-
+      }
+      else {
         result.set(0, 0);
 
       }
@@ -354,8 +285,8 @@ function calculateOrthogonalAreaForPattern(pattern, left, right, offset, result)
 
         calculateOrthogonalArea(p1.set(d / 2.0, 0.0), p2.set(d, o2), left, result);
 
-      } else {
-
+      }
+      else {
         result.set(0, 0);
 
       }
@@ -391,8 +322,8 @@ function calculateOrthogonalAreaForPattern(pattern, left, right, offset, result)
 
         calculateOrthogonalArea(p1.set(0.0, o1), p2.set(d / 2.0, 0.0), left, result);
 
-      } else {
-
+      }
+      else {
         result.set(0, 0);
 
       }
@@ -435,14 +366,13 @@ function calculateOrthogonalAreaForPattern(pattern, left, right, offset, result)
 
         result.addVectors(a1, a2).divideScalar(2.0);
 
-      } else {
-
+      }
+      else {
         calculateOrthogonalArea(p1.set(0.0, o1), p2.set(d, o2), left, result);
 
       }
 
       break;
-
     }
 
     case 7: {
@@ -468,8 +398,8 @@ function calculateOrthogonalAreaForPattern(pattern, left, right, offset, result)
 
         calculateOrthogonalArea(p1.set(d / 2.0, 0.0), p2.set(d, o1), left, result);
 
-      } else {
-
+      }
+      else {
         result.set(0, 0);
 
       }
@@ -493,8 +423,8 @@ function calculateOrthogonalAreaForPattern(pattern, left, right, offset, result)
 
         result.addVectors(a1, a2).divideScalar(2.0);
 
-      } else {
-
+      }
+      else {
         calculateOrthogonalArea(p1.set(0.0, o2), p2.set(d, o1), left, result);
 
       }
@@ -594,7 +524,6 @@ function calculateOrthogonalAreaForPattern(pattern, left, right, offset, result)
 /**
  * Determines whether the given pixel is inside the specified area.
  *
- * @private
  * @param {Vector2} p1 - The lower bounds of the area.
  * @param {Vector2} p2 - The upper bounds of the area.
  * @param {Vector2} x - The X-coordinates.
@@ -631,7 +560,6 @@ function isInsideArea(p1, p2, x, y) {
  * Calculates the area under the line p1 -> p2 for the pixel p using brute force
  * sampling.
  *
- * @private
  * @param {Vector2} p1 - The lower bounds of the area.
  * @param {Vector2} p2 - The upper bounds of the area.
  * @param {Number} pX - The X-coordinates.
@@ -670,7 +598,6 @@ function calculateDiagonalAreaForPixel(p1, p2, pX, pY) {
  * Calculates the area under the line p1 -> p2. This includes the pixel and its
  * opposite.
  *
- * @private
  * @param {Number} pattern - A pattern index.
  * @param {Vector2} p1 - The lower bounds of the area.
  * @param {Vector2} p2 - The upper bounds of the area.
@@ -711,7 +638,6 @@ function calculateDiagonalArea(pattern, p1, p2, left, offset, result) {
  * Calculates the area for a given pattern and distances to the left and to the
  * right, biased by an offset.
  *
- * @private
  * @param {Number} pattern - A pattern index.
  * @param {Number} left - The left distance.
  * @param {Number} right - The right distance.
@@ -1072,8 +998,8 @@ function generatePatterns(patterns, offset, orthogonal) {
 
           calculateOrthogonalAreaForPattern(i, x, y, offset, result);
 
-        } else {
-
+        }
+        else {
           calculateDiagonalAreaForPattern(i, x, y, offset, result);
 
         }
