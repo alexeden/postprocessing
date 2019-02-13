@@ -63,8 +63,8 @@ export class SMAAEffect extends Effect {
    * @param areaImage - The SMAA area image. Preload this image using the {@link areaImageDataURL}.
    */
   constructor(
-    searchImage: HTMLImageElement | HTMLCanvasElement | string,
-    areaImage: HTMLImageElement | HTMLCanvasElement | string
+    searchImage: HTMLImageElement | HTMLCanvasElement | HTMLVideoElement,
+    areaImage: HTMLImageElement | HTMLCanvasElement | HTMLVideoElement
   ) {
     super(EffectName.SMAA, fragment, {
       attributes: EffectAttribute.CONVOLUTION,
@@ -98,30 +98,32 @@ export class SMAAEffect extends Effect {
     this.colorEdgesPass = new ShaderPass(new ColorEdgesMaterial());
     this.weightsPass = new ShaderPass(new SMAAWeightsMaterial());
 
-    this.weightsPass.getFullscreenMaterial().uniforms.searchTexture.value = (() => {
-      const searchTexture = new Texture(searchImage);
-      searchTexture.name = 'SMAA.Search';
-      searchTexture.magFilter = NearestFilter;
-      searchTexture.minFilter = NearestFilter;
-      searchTexture.format = RGBAFormat;
-      searchTexture.generateMipmaps = false;
-      searchTexture.needsUpdate = true;
-      searchTexture.flipY = false;
+    this.weightsPass.getFullscreenMaterials().forEach(mat => {
+      mat.uniforms.searchTexture.value = (() => {
+        const searchTexture = new Texture(searchImage);
+        searchTexture.name = 'SMAA.Search';
+        searchTexture.magFilter = NearestFilter;
+        searchTexture.minFilter = NearestFilter;
+        searchTexture.format = RGBAFormat;
+        searchTexture.generateMipmaps = false;
+        searchTexture.needsUpdate = true;
+        searchTexture.flipY = false;
 
-      return searchTexture;
-    })();
+        return searchTexture;
+      })();
 
-    this.weightsPass.getFullscreenMaterial().uniforms.areaTexture.value = (() => {
-      const areaTexture = new Texture(areaImage);
-      areaTexture.name = 'SMAA.Area';
-      areaTexture.minFilter = LinearFilter;
-      areaTexture.format = RGBAFormat;
-      areaTexture.generateMipmaps = false;
-      areaTexture.needsUpdate = true;
-      areaTexture.flipY = false;
+      mat.uniforms.areaTexture.value = (() => {
+        const areaTexture = new Texture(areaImage);
+        areaTexture.name = 'SMAA.Area';
+        areaTexture.minFilter = LinearFilter;
+        areaTexture.format = RGBAFormat;
+        areaTexture.generateMipmaps = false;
+        areaTexture.needsUpdate = true;
+        areaTexture.flipY = false;
 
-      return areaTexture;
-    })();
+        return areaTexture;
+      })();
+    });
   }
 
   /**
@@ -131,7 +133,9 @@ export class SMAAEffect extends Effect {
    * @param threshold - The edge detection sensitivity. Range: [0.05, 0.5].
    */
   setEdgeDetectionThreshold(threshold: number) {
-    this.colorEdgesPass.getFullscreenMaterial().setEdgeDetectionThreshold(threshold);
+    this.colorEdgesPass.getFullscreenMaterialsOfType(ColorEdgesMaterial).forEach(mat => {
+      mat.setEdgeDetectionThreshold(threshold);
+    });
   }
 
   /**
@@ -141,7 +145,9 @@ export class SMAAEffect extends Effect {
    * @param steps - The search steps. Range: [0, 112].
    */
   setOrthogonalSearchSteps(steps: number) {
-    this.weightsPass.getFullscreenMaterial().setOrthogonalSearchSteps(steps);
+    this.weightsPass.getFullscreenMaterialsOfType(SMAAWeightsMaterial).forEach(mat => {
+      mat.setOrthogonalSearchSteps(steps);
+    });
   }
 
   update(
@@ -160,11 +166,16 @@ export class SMAAEffect extends Effect {
     this.renderTargetColorEdges.setSize(width, height);
     this.renderTargetWeights.setSize(width, height);
 
-    this.colorEdgesPass.getFullscreenMaterial().uniforms.texelSize.value.copy(
-      this.weightsPass.getFullscreenMaterial().uniforms.texelSize.value.set(
-        1.0 / width, 1.0 / height
-      )
-    );
+    this.colorEdgesPass.getFullscreenMaterialsOfType(ColorEdgesMaterial).forEach(mat => {
+      mat.uniforms.texelSize.value.copy(
+        /**
+         * TODO: Figure out what this is actually doing
+         */
+        (this.weightsPass.getFullscreenMaterial() as any).uniforms.texelSize.value.set(
+          1.0 / width, 1.0 / height
+        )
+      );
+    });
   }
 
   /**
