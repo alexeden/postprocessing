@@ -1,8 +1,19 @@
 // tslint:disable cyclomatic-complexity
 import { Box2, Vector2 } from 'three';
 import { RawImageData } from 'images/RawImageData';
+import { DIAGONAL_SAMPLES, SMOOTH_MAX_DISTANCE, DIAGONAL_EDGES } from './constants';
 
 export class SMAAUtils {
+  /**
+   * A box.
+   */
+  private static readonly b0 = new Box2();
+
+  /**
+   * A box.
+   */
+  private static readonly b1 = new Box2();
+
   /**
    * Calculates the bilinear fetch for a certain edge combination.
    *
@@ -194,11 +205,11 @@ export class SMAAUtils {
     offset: number,
     result: Vector2
   ) => {
-    const p1 = b0.min;
-    const p2 = b0.max;
-    const a1 = b1.min;
-    const a2 = b1.max;
-    const a = b1;
+    const p1 = SMAAUtils.b0.min;
+    const p2 = SMAAUtils.b0.max;
+    const a1 = SMAAUtils.b1.min;
+    const a2 = SMAAUtils.b1.max;
+    const a = SMAAUtils.b1;
 
     /* o1           |
      *      .-------´
@@ -479,7 +490,7 @@ export class SMAAUtils {
     offset: Float32Array,
     result: Vector2
   ) => {
-    const e = diagonalEdges[pattern];
+    const e = DIAGONAL_EDGES[pattern];
     const e1 = e[0];
     const e2 = e[1];
 
@@ -517,10 +528,10 @@ export class SMAAUtils {
     offset: Float32Array,
     result: Vector2
   ) => {
-    const p1 = b0.min;
-    const p2 = b0.max;
-    const a1 = b1.min;
-    const a2 = b1.max;
+    const p1 = SMAAUtils.b0.min;
+    const p2 = SMAAUtils.b0.max;
+    const a1 = SMAAUtils.b1.min;
+    const a2 = SMAAUtils.b1.max;
 
     const d = left + right + 1;
 
@@ -774,11 +785,11 @@ export class SMAAUtils {
       size = pattern.width;
       for (y = 0; y < size; ++y) {
         for (x = 0; x < size; ++x) {
-          if (orthogonal) {
+          if (orthogonal  && typeof offset === 'number') {
             SMAAUtils.calculateOrthogonalAreaForPattern(i, x, y, offset, result);
           }
           else {
-            SMAAUtils.calculateDiagonalAreaForPattern(i, x, y, offset, result);
+            SMAAUtils.calculateDiagonalAreaForPattern(i, x, y, offset as Float32Array, result);
           }
           c = (y * size + x) * 2;
           data[c] = result.x * 255;
