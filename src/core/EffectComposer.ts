@@ -188,7 +188,7 @@ export class EffectComposer implements Disposable, Resizable {
   ): WebGLRenderTarget {
 
     const drawingBufferSize = this.renderer!.getDrawingBufferSize();
-    const alpha = this.renderer!.context.getContextAttributes().alpha;
+    const alpha = this.renderer!.context.getContextAttributes()!.alpha;
 
     const renderTarget = new WebGLRenderTarget(drawingBufferSize.width, drawingBufferSize.height, {
       minFilter: LinearFilter,
@@ -219,7 +219,7 @@ export class EffectComposer implements Disposable, Resizable {
     const drawingBufferSize = this.renderer!.getDrawingBufferSize();
 
     pass.setSize(drawingBufferSize.width, drawingBufferSize.height);
-    pass.initialize(this.renderer!, this.renderer!.context.getContextAttributes().alpha);
+    pass.initialize(this.renderer!, this.renderer!.context.getContextAttributes()!.alpha || false);
 
     if (index !== undefined) {
       this.passes.splice(index, 0, pass);
