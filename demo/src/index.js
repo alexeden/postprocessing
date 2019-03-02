@@ -163,10 +163,8 @@ window.addEventListener("load", function main(event) {
 	];
 
 	if(demos.map((demo) => demo.id).indexOf(window.location.hash.slice(1)) === -1) {
-
 		// Invalid URL hash: demo doesn't exist.
 		window.location.hash = "";
-
 	}
 
 	// Register demos.
@@ -189,31 +187,22 @@ window.addEventListener("load", function main(event) {
  */
 
 window.addEventListener("resize", (function() {
-
 	let timeoutId = 0;
 
 	function handleResize(event) {
-
 		const width = event.target.innerWidth;
 		const height = event.target.innerHeight;
 
 		manager.setSize(width, height);
 		composer.setSize(width, height);
-
 		timeoutId = 0;
-
 	}
 
 	return function onResize(event) {
-
 		if(timeoutId === 0) {
-
 			timeoutId = setTimeout(handleResize, 66, event);
-
 		}
-
 	};
-
 }()));
 
 /**
@@ -222,16 +211,10 @@ window.addEventListener("resize", (function() {
  * @private
  * @param {Event} event - An event.
  */
-
 document.addEventListener("keydown", function onKeyDown(event) {
-
 	const aside = this.getElementById("aside");
-
 	if(event.altKey && aside !== null) {
-
 		event.preventDefault();
 		aside.style.visibility = (aside.style.visibility === "hidden") ? "visible" : "hidden";
-
 	}
-
 });
