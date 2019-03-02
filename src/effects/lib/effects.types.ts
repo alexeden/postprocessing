@@ -2,11 +2,12 @@ import { BlendFunction } from '../blending';
 import { Uniform } from 'three';
 
 export enum EffectName {
+  Bokeh = 'BokehEffect',
   ChromaticAberration = 'ChromaticAberrationEffect',
   Glitch = 'GlitchEffect',
   Noise = 'NoiseEffect',
   Scanline = 'ScanlineEffect',
-  ShockWave = 'ShockWave',
+  ShockWave = 'ShockWaveEffect',
   SMAA = 'SMAAEffect',
 }
 
