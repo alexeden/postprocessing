@@ -4,9 +4,11 @@ import { Uniform } from 'three';
 export enum EffectName {
   Bokeh = 'BokehEffect',
   ChromaticAberration = 'ChromaticAberrationEffect',
+  ColorAverage = 'ColorAverageEffect',
   Glitch = 'GlitchEffect',
   Noise = 'NoiseEffect',
   Scanline = 'ScanlineEffect',
+  Sepia = 'SepiaEffect',
   ShockWave = 'ShockWaveEffect',
   SMAA = 'SMAAEffect',
 }
