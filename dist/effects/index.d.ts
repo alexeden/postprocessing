@@ -1,8 +1,11 @@
 export * from './blending';
 export * from './lib';
-export { ChromaticAberrationEffect } from './ChromaticAberrationEffect';
+export { BokehEffect, BokehEffectOptions } from './BokehEffect';
+export { ChromaticAberrationEffect, ChromaticAberrationEffectOptions } from './ChromaticAberrationEffect';
 export { Effect } from './Effect';
 export { GlitchEffect, GlitchMode } from './GlitchEffect';
-export { NoiseEffect } from './NoiseEffect';
-export { ScanlineEffect } from './ScanlineEffect';
+export { NoiseEffect, NoiseEffectOptions } from './NoiseEffect';
+export { ScanlineEffect, ScanlineEffectOptions } from './ScanlineEffect';
+export { ShockWaveEffect, ShockWaveEffectOptions } from './ShockWaveEffect';
+export { SepiaEffect, SepiaEffectOptions } from './SepiaEffect';
 export { SMAAEffect } from './SMAAEffect';

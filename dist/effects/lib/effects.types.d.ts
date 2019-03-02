@@ -1,10 +1,14 @@
 import { BlendFunction } from '../blending';
 import { Uniform } from 'three';
 export declare enum EffectName {
+    Bokeh = "BokehEffect",
     ChromaticAberration = "ChromaticAberrationEffect",
+    ColorAverage = "ColorAverageEffect",
     Glitch = "GlitchEffect",
     Noise = "NoiseEffect",
     Scanline = "ScanlineEffect",
+    Sepia = "SepiaEffect",
+    ShockWave = "ShockWaveEffect",
     SMAA = "SMAAEffect"
 }
 export declare type PreprocessorMacros = Map<string, string>;

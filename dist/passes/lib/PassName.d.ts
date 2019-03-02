@@ -4,5 +4,6 @@ export declare enum PassName {
     Effect = "effect",
     Mask = "mask",
     Render = "render",
+    Save = "save",
     Shader = "shader"
 }
