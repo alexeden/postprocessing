@@ -19,7 +19,7 @@ export { NoiseEffect } from './NoiseEffect';
 // export { PixelationEffect } from './PixelationEffect';
 // export { RealisticBokehEffect } from './RealisticBokehEffect';
 export { ScanlineEffect } from './ScanlineEffect';
-// export { ShockWaveEffect } from './ShockWaveEffect';
+export { ShockWaveEffect, ShockWaveEffectOptions } from './ShockWaveEffect';
 // export { SepiaEffect } from './SepiaEffect';
 export { SMAAEffect } from './SMAAEffect';
 // export { SSAOEffect } from './SSAOEffect';

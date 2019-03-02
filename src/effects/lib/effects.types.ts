@@ -6,6 +6,7 @@ export enum EffectName {
   Glitch = 'GlitchEffect',
   Noise = 'NoiseEffect',
   Scanline = 'ScanlineEffect',
+  ShockWave = 'ShockWave',
   SMAA = 'SMAAEffect',
 }
 
