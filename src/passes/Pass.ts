@@ -161,7 +161,7 @@ export abstract class Pass implements Disposable, Initializable, Resizable {
    * @param depthTexture - A depth texture.
    * @param depthPacking - The depth packing. Default to `0`.
    */
-  setDepthTexture(depthTexture: Texture, depthPacking = 0) { }
+  setDepthTexture(depthTexture: Texture | null, depthPacking = 0) { }
 
   /**
    * Renders the effect.

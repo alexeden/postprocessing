@@ -66,7 +66,7 @@ export class ClearPass extends Pass {
       renderer.setClearColor(overrideClearColor, this.overrideClearAlpha);
     }
 
-    renderer.setRenderTarget(this.renderToScreen ? undefined : inputBuffer!);
+    renderer.setRenderTarget(this.renderToScreen ? null as any : inputBuffer!);
     renderer.clear(this.color, this.depth, this.stencil);
 
     if (overrideClearColor !== null) {

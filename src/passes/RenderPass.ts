@@ -108,27 +108,8 @@ export class RenderPass extends Pass {
     }
 
     scene.overrideMaterial = this.overrideMaterial;
-    renderer.setRenderTarget(this.renderToScreen ? undefined : inputBuffer);
+    renderer.setRenderTarget(this.renderToScreen ? null as any : inputBuffer);
     renderer.render(scene, this.camera);
     scene.overrideMaterial = overrideMaterial;
-
-
-    // const scene = this.scene;
-    // const renderTarget = this.renderToScreen ? undefined : inputBuffer;
-    // const overrideMaterial = scene.overrideMaterial;
-
-    // if (this.clear) {
-    //   this.clearPass.renderToScreen = this.renderToScreen;
-    //   this.clearPass.render(renderer, inputBuffer);
-    // }
-    // else if (this.clearDepth) {
-    //   renderer.setRenderTarget(renderTarget);
-    //   renderer.clearDepth();
-    // }
-
-    // scene.overrideMaterial = this.overrideMaterial;
-    // renderer.setRenderTarget(renderTarget);
-    // renderer.render(scene, this.camera);
-    // scene.overrideMaterial = overrideMaterial;
   }
 }

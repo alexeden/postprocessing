@@ -270,7 +270,7 @@ export class EffectPass extends Pass implements Disposable, Initializable, Resiz
         const time = material.uniforms.time.value + delta;
         material.uniforms.inputBuffer.value = inputBuffer.texture;
         material.uniforms.time.value = (time <= this.maxTime) ? time : this.minTime;
-        renderer.setRenderTarget(this.renderToScreen ? undefined : outputBuffer);
+        renderer.setRenderTarget(this.renderToScreen ? null as any : outputBuffer);
         renderer.render(this.scene, this.camera);
       });
     }

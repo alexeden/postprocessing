@@ -50,7 +50,7 @@ export class SavePass extends Pass {
       material.uniforms.inputBuffer.value = inputBuffer.texture;
     });
 
-    renderer.setRenderTarget(this.renderToScreen ? undefined : this.renderTarget);
+    renderer.setRenderTarget(this.renderToScreen ? null as any : this.renderTarget);
     renderer.render(this.scene, this.camera);
   }
 

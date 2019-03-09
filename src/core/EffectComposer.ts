@@ -55,7 +55,7 @@ export class EffectComposer implements Disposable, Resizable {
   private copyPass = new ShaderPass(new CopyMaterial());
 
 
-  private depthTexture: DepthTexture | null;
+  private depthTexture: DepthTexture | null = null;
 
   /**
    * The passes.
@@ -135,47 +135,16 @@ export class EffectComposer implements Disposable, Resizable {
    * @return The depth texture.
    */
   private createDepthTexture() {
-    const depthTexture = this.depthTexture = new DepthTexture();
+    const { width, height } = (this.renderer.getDrawingBufferSize as any)(new Vector2());
+    const depthTexture = this.depthTexture = new DepthTexture(width, height);
 
     if (this.inputBuffer!.stencilBuffer) {
       depthTexture.format = DepthStencilFormat;
-      depthTexture.type = UnsignedInt248Type;
+      depthTexture.type = UnsignedInt248Type as any;
     }
 
     return depthTexture;
   }
-
-  /**
-   * Sets the correct depth texture for each pass.
-   */
-  // private updateDepthTextures() {
-  //   let depthTextureRequired = false;
-  //   let depthTexture = null;
-  //   let inputBuffer = true;
-
-  //   for (const pass of this.passes) {
-  //     if (pass.needsDepthTexture && pass.getDepthTexture() !== depthTexture) {
-  //       pass.setDepthTexture(depthTexture);
-  //     }
-
-  //     if (pass.needsSwap) {
-  //       inputBuffer = !inputBuffer;
-  //     }
-  //     else if (pass instanceof RenderPass) {
-  //       depthTexture = (inputBuffer ? this.inputBuffer : this.outputBuffer)!.depthTexture;
-  //     }
-
-  //     depthTextureRequired = (depthTextureRequired || pass.needsDepthTexture);
-  //   }
-
-  //   if (!depthTextureRequired) {
-  //     this.inputBuffer!.depthTexture.dispose();
-  //     this.outputBuffer!.depthTexture.dispose();
-
-  //     this.inputBuffer.depthTexture = null;
-  //     this.outputBuffer.depthTexture = null;
-  //   }
-  // }
 
   /**
    * Creates a new render target by replicating the renderer's canvas.
@@ -193,7 +162,7 @@ export class EffectComposer implements Disposable, Resizable {
     stencilBuffer: boolean
   ): WebGLRenderTarget {
 
-    const drawingBufferSize = this.renderer!.getDrawingBufferSize(new Vector2());
+    const drawingBufferSize = (this.renderer.getDrawingBufferSize as any)(new Vector2());
     const alpha = this.renderer!.context.getContextAttributes()!.alpha;
 
     const renderTarget = new WebGLRenderTarget(drawingBufferSize.width, drawingBufferSize.height, {
@@ -223,7 +192,7 @@ export class EffectComposer implements Disposable, Resizable {
   ) {
     const passes = this.passes;
     const renderer = this.renderer;
-    const drawingBufferSize = renderer.getDrawingBufferSize(new Vector2());
+    const drawingBufferSize = (renderer.getDrawingBufferSize as any)(new Vector2());
 
     pass.setSize(drawingBufferSize.width, drawingBufferSize.height);
     pass.initialize(renderer, renderer.context.getContextAttributes()!.alpha!);
@@ -263,8 +232,8 @@ export class EffectComposer implements Disposable, Resizable {
         this.depthTexture.dispose();
         this.depthTexture = null;
 
-        this.inputBuffer.depthTexture = null;
-        this.outputBuffer.depthTexture = null;
+        this.inputBuffer!.depthTexture = null as any;
+        this.outputBuffer!.depthTexture = null as any;
 
         for (const p of passes) {
           p.setDepthTexture(null);
@@ -339,7 +308,7 @@ export class EffectComposer implements Disposable, Resizable {
     this.renderer!.setSize(width, height);
 
     // The drawing buffer size takes the device pixel ratio into account.
-    const drawingBufferSize = this.renderer!.getDrawingBufferSize(new Vector2());
+    const drawingBufferSize = (this.renderer!.getDrawingBufferSize as any)(new Vector2());
 
     this.inputBuffer!.setSize(drawingBufferSize.width, drawingBufferSize.height);
     this.outputBuffer!.setSize(drawingBufferSize.width, drawingBufferSize.height);

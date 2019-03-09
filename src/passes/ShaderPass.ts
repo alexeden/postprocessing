@@ -66,7 +66,7 @@ export class ShaderPass extends Pass {
       this.uniform.value = inputBuffer.texture;
     }
 
-    renderer.setRenderTarget(this.renderToScreen ? undefined : outputBuffer);
+    renderer.setRenderTarget(this.renderToScreen ? null as any : outputBuffer);
     renderer.render(this.scene, this.camera);
   }
 }
