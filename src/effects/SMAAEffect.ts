@@ -90,10 +90,9 @@ export class SMAAEffect extends Effect {
 
     this.uniforms.get('weightMap')!.value = this.renderTargetWeights.texture;
 
-    this.clearPass = new ClearPass({
-      clearColor: new Color(0x000000),
-      clearAlpha: 1.0,
-    });
+    this.clearPass = new ClearPass(true, false, false);
+    this.clearPass.overrideClearColor = new Color(0x000000);
+    this.clearPass.overrideClearAlpha = 1.0;
 
     this.colorEdgesPass = new ShaderPass(new ColorEdgesMaterial());
     this.weightsPass = new ShaderPass(new SMAAWeightsMaterial());

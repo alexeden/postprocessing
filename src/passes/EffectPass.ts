@@ -64,7 +64,7 @@ export class EffectPass extends Pass implements Disposable, Initializable, Resiz
 
   /**
    * Enables or disables dithering.
-   * Note that some effects like bloom have their own dithering setting.
+   * Note that some effects have their own dithering setting.
    */
   set dithering(value: boolean) {
     if (this.quantize !== value) {
@@ -245,8 +245,6 @@ export class EffectPass extends Pass implements Disposable, Initializable, Resiz
     for (const effect of this.effects) {
       effect.setDepthTexture(depthTexture, depthPacking);
     }
-
-    this.needsDepthTexture = (depthTexture === null);
   }
 
   /**
@@ -272,7 +270,8 @@ export class EffectPass extends Pass implements Disposable, Initializable, Resiz
         const time = material.uniforms.time.value + delta;
         material.uniforms.inputBuffer.value = inputBuffer.texture;
         material.uniforms.time.value = (time <= this.maxTime) ? time : this.minTime;
-        renderer.render(this.scene, this.camera, this.renderToScreen ? undefined : outputBuffer);
+        renderer.setRenderTarget(this.renderToScreen ? undefined : outputBuffer);
+        renderer.render(this.scene, this.camera);
       });
     }
   }

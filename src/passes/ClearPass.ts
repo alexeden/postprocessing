@@ -19,23 +19,31 @@ export interface ClearPassOptions {
 export class ClearPass extends Pass {
   /** Used for saving the original clear color of the renderer. */
   private static color = new Color();
-  clearColor: Color | null;
-  clearAlpha: number;
 
+  /**
+   * An override clear color.
+   */
+  overrideClearColor: Color | null = null;
+
+  /**
+   * An override clear alpha.
+   */
+  overrideClearAlpha = 0.0;
+
+  /**
+   * Constructs a new clear pass.
+   *
+   * @param color - Determines whether the color buffer should be cleared.
+   * @param depth - Determines whether the depth buffer should be cleared.
+   * @param stencil - Determines whether the stencil buffer should be cleared.
+   */
   constructor(
-    partialOptions: Partial<ClearPassOptions> = { }
+    public color = true,
+    public depth = true,
+    public stencil = false
   ) {
     super(PassName.Clear);
-
-    const options: ClearPassOptions = {
-      clearAlpha: 0,
-      clearColor: null,
-      ...partialOptions,
-    };
-
     this.needsSwap = false;
-    this.clearColor = options.clearColor;
-    this.clearAlpha = options.clearAlpha;
   }
 
   /**
@@ -48,20 +56,20 @@ export class ClearPass extends Pass {
     renderer: WebGLRenderer,
     inputBuffer: WebGLRenderTarget
   ) {
-    const clearColor = this.clearColor;
+    const overrideClearColor = this.overrideClearColor;
 
     let clearAlpha;
 
-    if (clearColor !== null) {
+    if (overrideClearColor !== null) {
       ClearPass.color.copy(renderer.getClearColor());
       clearAlpha = renderer.getClearAlpha();
-      renderer.setClearColor(clearColor, this.clearAlpha);
+      renderer.setClearColor(overrideClearColor, this.overrideClearAlpha);
     }
 
     renderer.setRenderTarget(this.renderToScreen ? undefined : inputBuffer);
-    renderer.clear();
+    renderer.clear(this.color, this.depth, this.stencil);
 
-    if (clearColor !== null) {
+    if (overrideClearColor !== null) {
       renderer.setClearColor(ClearPass.color, clearAlpha);
     }
   }

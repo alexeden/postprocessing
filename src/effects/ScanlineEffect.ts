@@ -5,9 +5,9 @@ import fragment from './glsl/scanlines/shader.frag';
 import { EffectName } from './lib';
 
 export interface ScanlineEffectOptions {
-  /** The blend function of this effect. */
+  /** The blend function of this effect. Default si BlendFunction.OVERLAY. */
   blendFunction: BlendFunction;
-  /** The scanline density. */
+  /** The scanline density. Default is 1.25. */
   density: number;
 }
 

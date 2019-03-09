@@ -19,7 +19,7 @@ export interface BokehEffectOptions {
 }
 
 /**
- * A depth of field (bokeh) shader effect.
+ * A depth of field (bokeh) effect.
  *
  * Original shader code by Martins Upitis:
  *  http://artmartinsh.blogspot.com/2010/02/glsl-lens-blur-filter-with-bokeh.html
