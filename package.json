@@ -74,7 +74,6 @@
 	"devDependencies": {
 		"@babel/core": "7.x.x",
 		"@babel/preset-env": "7.x.x",
-		"@types/three": "^0.93.19",
 		"ava": "1.x.x",
 		"babel-loader": "^8.0.5",
 		"cpx": "1.x.x",
