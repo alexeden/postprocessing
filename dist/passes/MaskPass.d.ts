@@ -9,8 +9,7 @@ import { Pass } from './Pass';
 export declare class MaskPass extends Pass {
     /** Inverse flag */
     inverse: boolean;
-    /** Stencil buffer clear flag. */
-    clearStencil: boolean;
+    private clearPass;
     /**
      * Constructs a new mask pass.
      *
@@ -18,6 +17,13 @@ export declare class MaskPass extends Pass {
      * @param camera - The camera to use.
      */
     constructor(scene: Scene, camera: Camera);
+    /**
+     * Indicates whether this pass should clear the stencil buffer.
+     */
+    /**
+    * Enables or disables auto clear.
+    */
+    clear: boolean;
     /**
      * Renders the effect.
      *

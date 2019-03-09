@@ -28,7 +28,7 @@ export class ShockWaveDemo extends PostProcessingDemo {
 	constructor(composer) {
 
 		super("shock-wave", composer);
-
+		window.shockwave = this;
 		/**
 		 * An effect.
 		 *
@@ -153,7 +153,7 @@ export class ShockWaveDemo extends PostProcessingDemo {
 
 		// Passes.
 
-		const smaaEffect = new SMAAEffect(assets.get("smaa-search"), assets.get("smaa-area"));
+		// const smaaEffect = new SMAAEffect(assets.get("smaa-search"), assets.get("smaa-area"));
 
 		const shockWaveEffect = new ShockWaveEffect(camera, mesh.position, {
 			speed: 1.25,
@@ -161,17 +161,18 @@ export class ShockWaveDemo extends PostProcessingDemo {
 			waveSize: 0.2,
 			amplitude: 0.05
 		});
-
+		window.shockWaveEffect = shockWaveEffect;
 		const effectPass = new EffectPass(camera, shockWaveEffect);
-		const smaaPass = new EffectPass(camera, smaaEffect);
+		// const smaaPass = new EffectPass(camera, smaaEffect);
+		effectPass.renderToScreen = true;
 
 		this.renderPass.renderToScreen = false;
-		smaaPass.renderToScreen = true;
+		// smaaPass.renderToScreen = true;
 
 		this.effect = shockWaveEffect;
 
 		composer.addPass(effectPass);
-		composer.addPass(smaaPass);
+		// composer.addPass(smaaPass);
 
 	}
 

@@ -1,9 +1,9 @@
 import { BlendFunction } from './blending';
 import { Effect } from './Effect';
 export interface ScanlineEffectOptions {
-    /** The blend function of this effect. */
+    /** The blend function of this effect. Default si BlendFunction.OVERLAY. */
     blendFunction: BlendFunction;
-    /** The scanline density. */
+    /** The scanline density. Default is 1.25. */
     density: number;
 }
 export declare class ScanlineEffect extends Effect {

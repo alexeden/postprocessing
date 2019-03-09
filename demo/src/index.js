@@ -1,5 +1,5 @@
 import { DemoManager } from "three-demo";
-import { WebGLRenderer } from "three";
+import { Vector2, WebGLRenderer } from "three";
 import { EffectComposer } from "../../src/index";
 
 // import { BloomDemo } from "./demos/BloomDemo.js";
@@ -15,7 +15,7 @@ import { GlitchDemo } from "./demos/GlitchDemo.js";
 // import { GodRaysDemo } from "./demos/GodRaysDemo.js";
 // import { ScanlineDemo } from "./demos/ScanlineDemo.js";
 // import { SepiaDemo } from "./demos/SepiaDemo.js";
-// import { ShockWaveDemo } from "./demos/ShockWaveDemo.js";
+import { ShockWaveDemo } from "./demos/ShockWaveDemo.js";
 // import { SMAADemo } from "./demos/SMAADemo.js";
 // import { SSAODemo } from "./demos/SSAODemo.js";
 // import { TextureDemo } from "./demos/TextureDemo.js";
@@ -75,7 +75,7 @@ function onChange(event) {
 	const demo = event.demo;
 
 	// Make sure that the main renderer is being used and update it just in case.
-	const size = composer.renderer.getSize();
+	const size = composer.getRenderer().getSize(new Vector2());
 	renderer.setSize(size.width, size.height);
 	composer.replaceRenderer(renderer);
 	composer.reset();
@@ -147,14 +147,14 @@ window.addEventListener("load", function main(event) {
 		// new RealisticBokehDemo(composer),
 		// new ColorCorrectionDemo(composer),
 		// new DotScreenDemo(composer),
-		new GlitchDemo(composer)
+		new GlitchDemo(composer),
 		// new GodRaysDemo(composer),
 		// new GridDemo(composer),
 		// new OutlineDemo(composer),
 		// new PixelationDemo(composer),
 		// new ScanlineDemo(composer),
 		// new SepiaDemo(composer),
-		// new ShockWaveDemo(composer),
+		new ShockWaveDemo(composer)
 		// new SMAADemo(composer)
 		// new SSAODemo(composer),
 		// new TextureDemo(composer),

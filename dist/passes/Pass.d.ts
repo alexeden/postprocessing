@@ -23,6 +23,8 @@ export declare abstract class Pass implements Disposable, Initializable, Resizab
      *
      * Set this to `false` if this pass doesn't render to the output buffer or
      * the screen. Otherwise, the contents of the input buffer will be lost.
+     *
+     * This flag must not be changed at runtime.
      */
     needsSwap: boolean;
     /**
@@ -91,7 +93,7 @@ export declare abstract class Pass implements Disposable, Initializable, Resizab
      * @param depthTexture - A depth texture.
      * @param depthPacking - The depth packing. Default to `0`.
      */
-    setDepthTexture(depthTexture: Texture, depthPacking?: number): void;
+    setDepthTexture(depthTexture: Texture | null, depthPacking?: number): void;
     /**
      * Renders the effect.
      *
@@ -107,8 +109,8 @@ export declare abstract class Pass implements Disposable, Initializable, Resizab
     /**
      * Updates this pass with the renderer's size.
      *
-     * You may override this method in case you want to be informed about the main
-     * render size.
+     * You may override this method in case you want to be informed about the size
+     * of the main frame buffer.
      *
      * The {@link EffectComposer} calls this method before this pass is
      * initialized and every time its own size is updated.

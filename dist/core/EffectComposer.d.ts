@@ -19,11 +19,10 @@ interface EffectComposerOptions {
  * unnecessary clear operations.
  *
  * It is common practice to use a {@link RenderPass} as the first pass to
- * automatically clear the screen and render the scene to a texture for further
- * processing.
+ * automatically clear the buffers and render a scene for further processing.
  */
 export declare class EffectComposer implements Disposable, Resizable {
-    renderer: WebGLRenderer | null;
+    private renderer;
     /**
      * The input buffer.
      *
@@ -39,6 +38,7 @@ export declare class EffectComposer implements Disposable, Resizable {
      * A copy pass used for copying masked scenes.
      */
     private copyPass;
+    private depthTexture;
     /**
      * The passes.
      */
@@ -48,7 +48,11 @@ export declare class EffectComposer implements Disposable, Resizable {
      * @param renderer- The renderer that should be used.
      * @param options - The options.
      */
-    constructor(renderer?: WebGLRenderer | null, partialOptions?: Partial<EffectComposerOptions>);
+    constructor(renderer: WebGLRenderer, partialOptions?: Partial<EffectComposerOptions>);
+    /**
+     * Returns the WebGL renderer.
+     */
+    getRenderer(): WebGLRenderer;
     /**
      * Replaces the current renderer with the given one. The DOM element of the
      * current renderer will automatically be removed from its parent node and the
@@ -61,24 +65,13 @@ export declare class EffectComposer implements Disposable, Resizable {
      */
     replaceRenderer(renderer: WebGLRenderer): WebGLRenderer | null;
     /**
-     * Retrieves the most relevant depth texture for the pass at the given index.
-     * @param index - The index of the pass that needs a depth texture.
-     * @return The depth texture, or null if there is none.
-     */
-    private getDepthTexture;
-    /**
-     * Creates two depth texture attachments, one for the input buffer and one for
-     * the output buffer.
+     * Creates a depth texture attachment that will be provided to all passes.
      *
-     * Depth will be written to the depth texture when something is rendered into
-     * the respective render target and the involved materials have `depthWrite`
-     * enabled. Under normal circumstances, only a {@link RenderPass} will render
-     * depth.
+     * Note: When a shader reads from a depth texture and writes to a render
+     * target that uses the same depth texture attachment, the depth information
+     * will be lost. This happens even if `depthWrite` is disabled.
      *
-     * When a shader reads from a depth texture and writes to a render target that
-     * uses the same depth texture attachment, the depth information will be lost.
-     * This happens even if `depthWrite` is disabled. For that reason, two
-     * separate depth textures are used.
+     * @return The depth texture.
      */
     private createDepthTexture;
     /**

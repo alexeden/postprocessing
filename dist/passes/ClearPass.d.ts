@@ -14,16 +14,32 @@ export interface ClearPassOptions {
  * to `false`.
  */
 export declare class ClearPass extends Pass {
-    /** Used for saving the original clear color of the renderer. */
+    color: boolean;
+    depth: boolean;
+    stencil: boolean;
+    /** Used to save the original clear color of the renderer. */
     private static color;
-    clearColor: Color | null;
-    clearAlpha: number;
-    constructor(partialOptions?: Partial<ClearPassOptions>);
+    /**
+     * An override clear color.
+     */
+    overrideClearColor: Color | null;
+    /**
+     * An override clear alpha.
+     */
+    overrideClearAlpha: number;
+    /**
+     * Constructs a new clear pass.
+     *
+     * @param color - Determines whether the color buffer should be cleared.
+     * @param depth - Determines whether the depth buffer should be cleared.
+     * @param stencil - Determines whether the stencil buffer should be cleared.
+     */
+    constructor(color?: boolean, depth?: boolean, stencil?: boolean);
     /**
      * Clears the input buffer or the screen.
      *
      * @param renderer - The renderer.
      * @param inputBuffer - A frame buffer that contains the result of the previous pass.
      */
-    render(renderer: WebGLRenderer, inputBuffer: WebGLRenderTarget): void;
+    render(renderer: WebGLRenderer, inputBuffer: WebGLRenderTarget | null): void;
 }

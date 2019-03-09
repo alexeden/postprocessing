@@ -1,6 +1,6 @@
 import { PerspectiveCamera, Camera, Texture, WebGLRenderer, WebGLRenderTarget } from 'three';
 import { Initializable, Resizable, Disposable } from '../core';
-import { Effect } from '../effects';
+import { Effect } from '../effects/Effect';
 import { Pass } from './Pass';
 /**
  * An effect pass.
@@ -40,7 +40,7 @@ export declare class EffectPass extends Pass implements Disposable, Initializabl
      */
     /**
     * Enables or disables dithering.
-    * Note that some effects like bloom have their own dithering setting.
+    * Note that some effects have their own dithering setting.
     */
     dithering: boolean;
     /**

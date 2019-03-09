@@ -38,6 +38,7 @@ export class GlitchDemo extends PostProcessingDemo {
 	 */
 	constructor(composer) {
 		super("glitch", composer);
+		console.log(`I AM GLITCH DEMO`);
 		this.effect = null;
 		this.pass = null;
 		this.object = null;

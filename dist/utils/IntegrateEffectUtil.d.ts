@@ -1,5 +1,7 @@
 import { Uniform } from 'three';
-import { Effect, BlendFunction, BlendMode, EffectAttribute } from '../effects';
+import { Effect } from '../effects/Effect';
+import { BlendFunction, BlendMode } from '../effects/blending';
+import { EffectAttribute } from '../effects/lib';
 export interface IntegratedEffect {
     /** The varyings used by the given effect. */
     varyings: string[];
