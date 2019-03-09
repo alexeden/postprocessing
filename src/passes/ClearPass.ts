@@ -17,7 +17,7 @@ export interface ClearPassOptions {
  * to `false`.
  */
 export class ClearPass extends Pass {
-  /** Used for saving the original clear color of the renderer. */
+  /** Used to save the original clear color of the renderer. */
   private static color = new Color();
 
   /**
@@ -54,7 +54,7 @@ export class ClearPass extends Pass {
    */
   render(
     renderer: WebGLRenderer,
-    inputBuffer: WebGLRenderTarget
+    inputBuffer: WebGLRenderTarget | null
   ) {
     const overrideClearColor = this.overrideClearColor;
 
@@ -66,7 +66,7 @@ export class ClearPass extends Pass {
       renderer.setClearColor(overrideClearColor, this.overrideClearAlpha);
     }
 
-    renderer.setRenderTarget(this.renderToScreen ? undefined : inputBuffer);
+    renderer.setRenderTarget(this.renderToScreen ? undefined : inputBuffer!);
     renderer.clear(this.color, this.depth, this.stencil);
 
     if (overrideClearColor !== null) {

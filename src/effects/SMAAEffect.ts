@@ -82,7 +82,6 @@ export class SMAAEffect extends Effect {
       depthBuffer: false,
     });
     this.renderTargetColorEdges.texture.name = 'SMAA.ColorEdges';
-    this.renderTargetColorEdges.texture.generateMipmaps = false;
 
     this.renderTargetWeights = this.renderTargetColorEdges.clone();
     this.renderTargetWeights.texture.name = 'SMAA.Weights';

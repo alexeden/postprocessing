@@ -33,7 +33,6 @@ export class SavePass extends Pass {
       });
 
       this.renderTarget.texture.name = 'SavePass.Target';
-      this.renderTarget.texture.generateMipmaps = false;
     }
     else {
       this.renderTarget = renderTarget;

@@ -10,7 +10,7 @@ import {
   WebGLRenderer,
 } from 'three';
 
-import { ClearMaskPass, MaskPass, RenderPass, ShaderPass, Pass } from '../passes';
+import { ClearMaskPass, MaskPass, ShaderPass, Pass } from '../passes';
 import { CopyMaterial } from '../materials';
 import { Disposable } from './Disposable';
 import { Resizable } from './Resizable';
@@ -54,6 +54,9 @@ export class EffectComposer implements Disposable, Resizable {
    */
   private copyPass = new ShaderPass(new CopyMaterial());
 
+
+  private depthTexture: DepthTexture | null;
+
   /**
    * The passes.
    */
@@ -65,7 +68,7 @@ export class EffectComposer implements Disposable, Resizable {
    * @param options - The options.
    */
   constructor(
-    public renderer: WebGLRenderer | null = null,
+    private renderer: WebGLRenderer,
     partialOptions: Partial<EffectComposerOptions> = { }
   ) {
 
@@ -80,6 +83,13 @@ export class EffectComposer implements Disposable, Resizable {
       this.inputBuffer = this.createBuffer(options.depthBuffer, options.stencilBuffer);
       this.outputBuffer = this.inputBuffer.clone();
     }
+  }
+
+  /**
+   * Returns the WebGL renderer.
+   */
+  getRenderer() {
+    return this.renderer;
   }
 
   /**
@@ -116,62 +126,56 @@ export class EffectComposer implements Disposable, Resizable {
   }
 
   /**
-   * Creates two depth texture attachments, one for the input buffer and one for
-   * the output buffer.
+   * Creates a depth texture attachment that will be provided to all passes.
    *
-   * Depth will be written to the depth texture when something is rendered into
-   * the respective render target and the involved materials have `depthWrite`
-   * enabled. Under normal circumstances, only a {@link RenderPass} will render
-   * depth.
+   * Note: When a shader reads from a depth texture and writes to a render
+   * target that uses the same depth texture attachment, the depth information
+   * will be lost. This happens even if `depthWrite` is disabled.
    *
-   * When a shader reads from a depth texture and writes to a render target that
-   * uses the same depth texture attachment, the depth information will be lost.
-   * This happens even if `depthWrite` is disabled. For that reason, two
-   * separate depth textures are used.
+   * @return The depth texture.
    */
-  private createDepthTexture(width: number, height: number) {
-    const depthTexture = new DepthTexture(width, height);
+  private createDepthTexture() {
+    const depthTexture = this.depthTexture = new DepthTexture();
 
     if (this.inputBuffer!.stencilBuffer) {
       depthTexture.format = DepthStencilFormat;
-      depthTexture.type = UnsignedInt248Type as any;
+      depthTexture.type = UnsignedInt248Type;
     }
 
-    this.inputBuffer!.depthTexture = depthTexture;
-    this.outputBuffer!.depthTexture = depthTexture.clone();
+    return depthTexture;
   }
 
   /**
    * Sets the correct depth texture for each pass.
    */
-  private updateDepthTextures() {
-    let depthTextureRequired = false;
-    let depthTexture = null;
-    let inputBuffer = true;
+  // private updateDepthTextures() {
+  //   let depthTextureRequired = false;
+  //   let depthTexture = null;
+  //   let inputBuffer = true;
 
-    for (const pass of this.passes) {
-      if (pass.needsDepthTexture && pass.getDepthTexture() !== depthTexture) {
-        pass.setDepthTexture(depthTexture);
-      }
+  //   for (const pass of this.passes) {
+  //     if (pass.needsDepthTexture && pass.getDepthTexture() !== depthTexture) {
+  //       pass.setDepthTexture(depthTexture);
+  //     }
 
-      if (pass.needsSwap) {
-        inputBuffer = !inputBuffer;
-      }
-      else if (pass instanceof RenderPass) {
-        depthTexture = (inputBuffer ? this.inputBuffer : this.outputBuffer)!.depthTexture;
-      }
+  //     if (pass.needsSwap) {
+  //       inputBuffer = !inputBuffer;
+  //     }
+  //     else if (pass instanceof RenderPass) {
+  //       depthTexture = (inputBuffer ? this.inputBuffer : this.outputBuffer)!.depthTexture;
+  //     }
 
-      depthTextureRequired = (depthTextureRequired || pass.needsDepthTexture);
-    }
+  //     depthTextureRequired = (depthTextureRequired || pass.needsDepthTexture);
+  //   }
 
-    if (!depthTextureRequired) {
-      this.inputBuffer!.depthTexture.dispose();
-      this.outputBuffer!.depthTexture.dispose();
+  //   if (!depthTextureRequired) {
+  //     this.inputBuffer!.depthTexture.dispose();
+  //     this.outputBuffer!.depthTexture.dispose();
 
-      this.inputBuffer.depthTexture = null;
-      this.outputBuffer.depthTexture = null;
-    }
-  }
+  //     this.inputBuffer.depthTexture = null;
+  //     this.outputBuffer.depthTexture = null;
+  //   }
+  // }
 
   /**
    * Creates a new render target by replicating the renderer's canvas.
@@ -213,32 +217,33 @@ export class EffectComposer implements Disposable, Resizable {
    * @param pass - A new pass.
    * @param index - An index at which the pass should be inserted.
    */
-
   addPass(
     pass: Pass,
     index?: number
   ) {
-    const drawingBufferSize = this.renderer!.getDrawingBufferSize(new Vector2());
+    const passes = this.passes;
+    const renderer = this.renderer;
+    const drawingBufferSize = renderer.getDrawingBufferSize(new Vector2());
 
     pass.setSize(drawingBufferSize.width, drawingBufferSize.height);
-    pass.initialize(this.renderer!, this.renderer!.context.getContextAttributes()!.alpha || false);
-
-    if (pass.needsDepthTexture && this.inputBuffer!.depthTexture === null) {
-      this.createDepthTexture();
-    }
+    pass.initialize(renderer, renderer.context.getContextAttributes()!.alpha!);
 
     if (index !== undefined) {
-      this.passes.splice(index, 0, pass);
-
-      if (this.inputBuffer!.depthTexture !== null) {
-        this.updateDepthTextures();
-      }
+      passes.splice(index, 0, pass);
     }
     else {
-      this.passes.push(pass);
+      passes.push(pass);
+    }
 
-      if (pass.needsDepthTexture) {
-        this.updateDepthTextures();
+    if (pass.needsDepthTexture || this.depthTexture !== null) {
+      if (this.depthTexture === null) {
+        const depthTexture = this.createDepthTexture();
+        for (const p of passes) {
+          p.setDepthTexture(depthTexture);
+        }
+      }
+      else {
+        pass.setDepthTexture(this.depthTexture);
       }
     }
   }
@@ -247,9 +252,24 @@ export class EffectComposer implements Disposable, Resizable {
    * Removes a pass.
    */
   removePass(pass: Pass) {
-    const removed = this.passes.splice(this.passes.indexOf(pass), 1).length > 0;
-    if (removed && this.inputBuffer!.depthTexture !== null) {
-      this.updateDepthTextures();
+    const passes = this.passes;
+    const removed = passes.splice(passes.indexOf(pass), 1).length > 0;
+
+    if (removed && this.depthTexture !== null) {
+      const depthTextureRequired = passes.reduce((a, b) => a || b.needsDepthTexture, false);
+
+      if (!depthTextureRequired) {
+
+        this.depthTexture.dispose();
+        this.depthTexture = null;
+
+        this.inputBuffer.depthTexture = null;
+        this.outputBuffer.depthTexture = null;
+
+        for (const p of passes) {
+          p.setDepthTexture(null);
+        }
+      }
     }
   }
 
@@ -344,6 +364,7 @@ export class EffectComposer implements Disposable, Resizable {
     // Reanimate.
     this.inputBuffer = renderTarget;
     this.outputBuffer = renderTarget.clone();
+    this.depthTexture = null;
     this.copyPass = new ShaderPass(new CopyMaterial());
   }
 
@@ -367,6 +388,10 @@ export class EffectComposer implements Disposable, Resizable {
     if (this.outputBuffer !== null) {
       this.outputBuffer.dispose();
       this.outputBuffer = null;
+    }
+
+    if (this.depthTexture !== null) {
+      this.depthTexture.dispose();
     }
 
     this.copyPass.dispose();
