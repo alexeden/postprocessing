@@ -1,6 +1,8 @@
 import { PerspectiveCamera, Camera, Texture, WebGLRenderer, WebGLRenderTarget } from 'three';
 import { Initializable, Resizable, Disposable } from '../core';
-import { BlendFunction, EffectAttribute, Effect } from '../effects';
+import { Effect } from '../effects/Effect';
+import { BlendFunction } from '../effects/blending';
+import { EffectAttribute } from '../effects/lib';
 import { EffectMaterial, Section } from '../materials';
 import { Pass } from './Pass';
 import { PassName } from './lib';
