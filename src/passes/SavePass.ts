@@ -21,7 +21,6 @@ export class SavePass extends Pass {
     readonly resize = true
   ) {
     super(PassName.Save);
-
     this.setFullscreenMaterial(new CopyMaterial());
 
     if (!renderTarget) {

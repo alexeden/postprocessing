@@ -3256,6 +3256,8 @@
 	         *
 	         * Set this to `false` if this pass doesn't render to the output buffer or
 	         * the screen. Otherwise, the contents of the input buffer will be lost.
+	         *
+	         * This flag must not be changed at runtime.
 	         */
 	        this.needsSwap = true;
 	        /**
@@ -3346,8 +3348,8 @@
 	    /**
 	     * Updates this pass with the renderer's size.
 	     *
-	     * You may override this method in case you want to be informed about the main
-	     * render size.
+	     * You may override this method in case you want to be informed about the size
+	     * of the main frame buffer.
 	     *
 	     * The {@link EffectComposer} calls this method before this pass is
 	     * initialized and every time its own size is updated.
@@ -3426,16 +3428,27 @@
 	 * to `false`.
 	 */
 	class ClearPass extends Pass {
-	    constructor(partialOptions = {}) {
+	    /**
+	     * Constructs a new clear pass.
+	     *
+	     * @param color - Determines whether the color buffer should be cleared.
+	     * @param depth - Determines whether the depth buffer should be cleared.
+	     * @param stencil - Determines whether the stencil buffer should be cleared.
+	     */
+	    constructor(color = true, depth = true, stencil = false) {
 	        super(PassName.Clear);
-	        const options = {
-	            clearAlpha: 0,
-	            clearColor: null,
-	            ...partialOptions,
-	        };
+	        this.color = color;
+	        this.depth = depth;
+	        this.stencil = stencil;
+	        /**
+	         * An override clear color.
+	         */
+	        this.overrideClearColor = null;
+	        /**
+	         * An override clear alpha.
+	         */
+	        this.overrideClearAlpha = 0.0;
 	        this.needsSwap = false;
-	        this.clearColor = options.clearColor;
-	        this.clearAlpha = options.clearAlpha;
 	    }
 	    /**
 	     * Clears the input buffer or the screen.
@@ -3444,21 +3457,21 @@
 	     * @param inputBuffer - A frame buffer that contains the result of the previous pass.
 	     */
 	    render(renderer, inputBuffer) {
-	        const clearColor = this.clearColor;
+	        const overrideClearColor = this.overrideClearColor;
 	        let clearAlpha;
-	        if (clearColor !== null) {
+	        if (overrideClearColor !== null) {
 	            ClearPass.color.copy(renderer.getClearColor());
 	            clearAlpha = renderer.getClearAlpha();
-	            renderer.setClearColor(clearColor, this.clearAlpha);
+	            renderer.setClearColor(overrideClearColor, this.overrideClearAlpha);
 	        }
-	        renderer.setRenderTarget(this.renderToScreen ? undefined : inputBuffer);
-	        renderer.clear();
-	        if (clearColor !== null) {
+	        renderer.setRenderTarget(this.renderToScreen ? null : inputBuffer);
+	        renderer.clear(this.color, this.depth, this.stencil);
+	        if (overrideClearColor !== null) {
 	            renderer.setClearColor(ClearPass.color, clearAlpha);
 	        }
 	    }
 	}
-	/** Used for saving the original clear color of the renderer. */
+	/** Used to save the original clear color of the renderer. */
 	ClearPass.color = new three.Color();
 
 	/**
@@ -4413,15 +4426,13 @@
 	            depthBuffer: false,
 	        });
 	        this.renderTargetColorEdges.texture.name = 'SMAA.ColorEdges';
-	        this.renderTargetColorEdges.texture.generateMipmaps = false;
 	        this.renderTargetWeights = this.renderTargetColorEdges.clone();
 	        this.renderTargetWeights.texture.name = 'SMAA.Weights';
 	        this.renderTargetWeights.texture.format = three.RGBAFormat;
 	        this.uniforms.get('weightMap').value = this.renderTargetWeights.texture;
-	        this.clearPass = new ClearPass({
-	            clearColor: new three.Color(0x000000),
-	            clearAlpha: 1.0,
-	        });
+	        this.clearPass = new ClearPass(true, false, false);
+	        this.clearPass.overrideClearColor = new three.Color(0x000000);
+	        this.clearPass.overrideClearAlpha = 1.0;
 	        this.colorEdgesPass = new ShaderPass(new ColorEdgesMaterial());
 	        this.weightsPass = new ShaderPass(new SMAAWeightsMaterial());
 	        this.weightsPass.getFullscreenMaterials().forEach(mat => {
@@ -4564,7 +4575,7 @@
 	    }
 	    /**
 	     * Enables or disables dithering.
-	     * Note that some effects like bloom have their own dithering setting.
+	     * Note that some effects have their own dithering setting.
 	     */
 	    set dithering(value) {
 	        if (this.quantize !== value) {
@@ -4706,7 +4717,6 @@
 	        for (const effect of this.effects) {
 	            effect.setDepthTexture(depthTexture, depthPacking);
 	        }
-	        this.needsDepthTexture = (depthTexture === null);
 	    }
 	    /**
 	     * Renders the effect.
@@ -4725,7 +4735,8 @@
 	                const time = material.uniforms.time.value + delta;
 	                material.uniforms.inputBuffer.value = inputBuffer.texture;
 	                material.uniforms.time.value = (time <= this.maxTime) ? time : this.minTime;
-	                renderer.render(this.scene, this.camera, this.renderToScreen ? undefined : outputBuffer);
+	                renderer.setRenderTarget(this.renderToScreen ? null : outputBuffer);
+	                renderer.render(this.scene, this.camera);
 	            });
 	        }
 	    }
@@ -4794,9 +4805,20 @@
 	        super(PassName.Mask, scene, camera);
 	        /** Inverse flag */
 	        this.inverse = false;
-	        /** Stencil buffer clear flag. */
-	        this.clearStencil = true;
 	        this.needsSwap = false;
+	        this.clearPass = new ClearPass(false, false, true);
+	    }
+	    /**
+	     * Indicates whether this pass should clear the stencil buffer.
+	     */
+	    get clear() {
+	        return this.clearPass.enabled;
+	    }
+	    /**
+	     * Enables or disables auto clear.
+	     */
+	    set clear(value) {
+	        this.clearPass.enabled = value;
 	    }
 	    /**
 	     * Renders the effect.
@@ -4810,6 +4832,7 @@
 	        const state = renderer.state;
 	        const scene = this.scene;
 	        const camera = this.camera;
+	        const clearPass = this.clearPass;
 	        const writeValue = this.inverse ? 0 : 1;
 	        const clearValue = 1 - writeValue;
 	        // Don't update color or depth.
@@ -4824,25 +4847,25 @@
 	        state.buffers.stencil.setFunc(context.ALWAYS, writeValue, 0xffffffff);
 	        state.buffers.stencil.setClear(clearValue);
 	        // Clear the stencil.
-	        if (this.clearStencil) {
+	        if (this.clear) {
 	            if (this.renderToScreen) {
-	                renderer.setRenderTarget();
-	                renderer.clearStencil();
+	                clearPass.render(renderer, null);
 	            }
 	            else {
-	                renderer.setRenderTarget(inputBuffer);
-	                renderer.clearStencil();
-	                renderer.setRenderTarget(outputBuffer);
-	                renderer.clearStencil();
+	                clearPass.render(renderer, inputBuffer);
+	                clearPass.render(renderer, outputBuffer);
 	            }
 	        }
 	        // Draw the mask.
 	        if (this.renderToScreen) {
+	            renderer.setRenderTarget(null);
 	            renderer.render(scene, camera);
 	        }
 	        else {
-	            renderer.render(scene, camera, inputBuffer);
-	            renderer.render(scene, camera, outputBuffer);
+	            renderer.setRenderTarget(inputBuffer);
+	            renderer.render(scene, camera);
+	            renderer.setRenderTarget(outputBuffer);
+	            renderer.render(scene, camera);
 	        }
 	        // Unlock the buffers.
 	        state.buffers.color.setLocked(false);
@@ -4854,8 +4877,8 @@
 	}
 
 	/**
-	 * A pass that renders a given scene directly on screen or into the read buffer
-	 * for further processing.
+	 * A pass that renders a given scene into the input buffer or to screen.
+	 * This pass uses a {@link ClearPass} to clear the target buffer.
 	 */
 	class RenderPass extends Pass {
 	    /**
@@ -4865,44 +4888,69 @@
 	     * @param camera The camera to use to render the scene.
 	     * @param options Additional options.
 	     */
-	    constructor(scene, camera, partialOptions = {}) {
+	    constructor(scene, camera, overrideMaterial = null) {
 	        super(PassName.Render, scene, camera);
 	        this.scene = scene;
 	        this.camera = camera;
-	        this.overrideMaterial = null;
-	        const options = {
-	            overrideMaterial: null,
-	            clearAlpha: 1,
-	            clearDepth: false,
-	            clear: true,
-	            ...partialOptions,
-	        };
+	        this.overrideMaterial = overrideMaterial;
 	        this.needsSwap = false;
-	        this.clearPass = new ClearPass(options);
-	        this.overrideMaterial = options.overrideMaterial;
-	        this.clearDepth = options.clearDepth;
-	        this.clear = options.clear;
+	        this.clearPass = new ClearPass();
+	        this.depthTexture = null;
+	    }
+	    /**
+	     * Indicates whether the target buffer should be cleared before rendering.
+	     */
+	    get clear() {
+	        return this.clearPass.enabled;
+	    }
+	    /**
+	     * Enables or disables auto clear.
+	     */
+	    set clear(value) {
+	        this.clearPass.enabled = value;
+	    }
+	    /**
+	     * Returns the clear pass.
+	     */
+	    getClearPass() {
+	        return this.clearPass;
+	    }
+	    /**
+	     * Returns the current depth texture.
+	     */
+	    getDepthTexture() {
+	        return this.depthTexture;
+	    }
+	    /**
+	     * Sets the depth texture.
+	     *
+	     * The provided texture will be attached to the input buffer unless this pass
+	     * renders to screen.
+	     */
+	    setDepthTexture(depthTexture, depthPacking = 0) {
+	        this.depthTexture = depthTexture;
 	    }
 	    /**
 	     * Renders the scene.
 	     *
 	     * @param renderer The renderer.
 	     * @param inputBuffer A frame buffer that contains the result of the previous pass.
+	     * @param outputBuffer - A frame buffer that serves as the output render target unless this pass renders to screen.
 	     */
-	    render(renderer, inputBuffer) {
+	    render(renderer, inputBuffer, outputBuffer) {
 	        const scene = this.scene;
-	        const renderTarget = this.renderToScreen ? undefined : inputBuffer;
 	        const overrideMaterial = scene.overrideMaterial;
+	        if (this.depthTexture !== null && !this.renderToScreen) {
+	            inputBuffer.depthTexture = this.depthTexture;
+	            outputBuffer.depthTexture = null;
+	        }
 	        if (this.clear) {
 	            this.clearPass.renderToScreen = this.renderToScreen;
 	            this.clearPass.render(renderer, inputBuffer);
 	        }
-	        else if (this.clearDepth) {
-	            renderer.setRenderTarget(renderTarget);
-	            renderer.clearDepth();
-	        }
 	        scene.overrideMaterial = this.overrideMaterial;
-	        renderer.render(scene, this.camera, renderTarget);
+	        renderer.setRenderTarget(this.renderToScreen ? null : inputBuffer);
+	        renderer.render(scene, this.camera);
 	        scene.overrideMaterial = overrideMaterial;
 	    }
 	}
@@ -4943,7 +4991,7 @@
 	        this.uniform = null;
 	        materials.forEach(material => {
 	            const uniforms = material.uniforms;
-	            if (uniforms[input] !== undefined) {
+	            if (uniforms !== undefined && uniforms[input] !== undefined) {
 	                this.uniform = uniforms[input];
 	            }
 	        });
@@ -4959,7 +5007,8 @@
 	        if (this.uniform !== null) {
 	            this.uniform.value = inputBuffer.texture;
 	        }
-	        renderer.render(this.scene, this.camera, this.renderToScreen ? undefined : outputBuffer);
+	        renderer.setRenderTarget(this.renderToScreen ? null : outputBuffer);
+	        renderer.render(this.scene, this.camera);
 	    }
 	}
 
@@ -4972,8 +5021,7 @@
 	 * unnecessary clear operations.
 	 *
 	 * It is common practice to use a {@link RenderPass} as the first pass to
-	 * automatically clear the screen and render the scene to a texture for further
-	 * processing.
+	 * automatically clear the buffers and render a scene for further processing.
 	 */
 	class EffectComposer {
 	    /**
@@ -4981,7 +5029,7 @@
 	     * @param renderer- The renderer that should be used.
 	     * @param options - The options.
 	     */
-	    constructor(renderer = null, partialOptions = {}) {
+	    constructor(renderer, partialOptions = {}) {
 	        this.renderer = renderer;
 	        /**
 	         * The input buffer.
@@ -4998,10 +5046,12 @@
 	         * A copy pass used for copying masked scenes.
 	         */
 	        this.copyPass = new ShaderPass(new CopyMaterial());
+	        this.depthTexture = null;
 	        /**
 	         * The passes.
 	         */
 	        this.passes = [];
+	        console.log(`I'm the new save pass!`);
 	        const options = {
 	            depthBuffer: true,
 	            stencilBuffer: false,
@@ -5012,6 +5062,12 @@
 	            this.inputBuffer = this.createBuffer(options.depthBuffer, options.stencilBuffer);
 	            this.outputBuffer = this.inputBuffer.clone();
 	        }
+	    }
+	    /**
+	     * Returns the WebGL renderer.
+	     */
+	    getRenderer() {
+	        return this.renderer;
 	    }
 	    /**
 	     * Replaces the current renderer with the given one. The DOM element of the
@@ -5025,69 +5081,39 @@
 	     */
 	    replaceRenderer(renderer) {
 	        const oldRenderer = this.renderer;
-	        let parent;
-	        let oldSize;
-	        let newSize;
 	        if (oldRenderer !== null && oldRenderer !== renderer) {
+	            const parent = oldRenderer.domElement.parentNode;
+	            const oldSize = oldRenderer.getSize(new three.Vector2());
+	            const newSize = renderer.getSize(new three.Vector2());
 	            this.renderer = renderer;
 	            this.renderer.autoClear = false;
-	            parent = oldRenderer.domElement.parentNode;
-	            oldSize = oldRenderer.getSize();
-	            newSize = renderer.getSize();
+	            if (!oldSize.equals(newSize)) {
+	                this.setSize();
+	            }
 	            if (parent !== null) {
 	                parent.removeChild(oldRenderer.domElement);
 	                parent.appendChild(renderer.domElement);
-	            }
-	            if (oldSize.width !== newSize.width || oldSize.height !== newSize.height) {
-	                this.setSize();
 	            }
 	        }
 	        return oldRenderer;
 	    }
 	    /**
-	     * Retrieves the most relevant depth texture for the pass at the given index.
-	     * @param index - The index of the pass that needs a depth texture.
-	     * @return The depth texture, or null if there is none.
-	     */
-	    getDepthTexture(index) {
-	        const passes = this.passes;
-	        let depthTexture = null;
-	        let inputBuffer = true;
-	        let i;
-	        let pass;
-	        for (i = 0; i < index; ++i) {
-	            pass = passes[i];
-	            if (pass.needsSwap) {
-	                inputBuffer = !inputBuffer;
-	            }
-	            else if (pass instanceof RenderPass) {
-	                depthTexture = (inputBuffer ? this.inputBuffer : this.outputBuffer).depthTexture;
-	            }
-	        }
-	        return depthTexture;
-	    }
-	    /**
-	     * Creates two depth texture attachments, one for the input buffer and one for
-	     * the output buffer.
+	     * Creates a depth texture attachment that will be provided to all passes.
 	     *
-	     * Depth will be written to the depth texture when something is rendered into
-	     * the respective render target and the involved materials have `depthWrite`
-	     * enabled. Under normal circumstances, only a {@link RenderPass} will render
-	     * depth.
+	     * Note: When a shader reads from a depth texture and writes to a render
+	     * target that uses the same depth texture attachment, the depth information
+	     * will be lost. This happens even if `depthWrite` is disabled.
 	     *
-	     * When a shader reads from a depth texture and writes to a render target that
-	     * uses the same depth texture attachment, the depth information will be lost.
-	     * This happens even if `depthWrite` is disabled. For that reason, two
-	     * separate depth textures are used.
+	     * @return The depth texture.
 	     */
-	    createDepthTexture(width, height) {
-	        const depthTexture = new three.DepthTexture(width, height);
+	    createDepthTexture() {
+	        const { width, height } = this.renderer.getDrawingBufferSize(new three.Vector2());
+	        const depthTexture = this.depthTexture = new three.DepthTexture(width, height);
 	        if (this.inputBuffer.stencilBuffer) {
 	            depthTexture.format = three.DepthStencilFormat;
 	            depthTexture.type = three.UnsignedInt248Type;
 	        }
-	        this.inputBuffer.depthTexture = depthTexture;
-	        this.outputBuffer.depthTexture = depthTexture.clone();
+	        return depthTexture;
 	    }
 	    /**
 	     * Creates a new render target by replicating the renderer's canvas.
@@ -5101,7 +5127,7 @@
 	     * @return A new render target that equals the renderer's canvas.
 	     */
 	    createBuffer(depthBuffer, stencilBuffer) {
-	        const drawingBufferSize = this.renderer.getDrawingBufferSize();
+	        const drawingBufferSize = this.renderer.getDrawingBufferSize(new three.Vector2());
 	        const alpha = this.renderer.context.getContextAttributes().alpha;
 	        const renderTarget = new three.WebGLRenderTarget(drawingBufferSize.width, drawingBufferSize.height, {
 	            minFilter: three.LinearFilter,
@@ -5121,28 +5147,47 @@
 	     * @param index - An index at which the pass should be inserted.
 	     */
 	    addPass(pass, index) {
-	        const drawingBufferSize = this.renderer.getDrawingBufferSize();
+	        const passes = this.passes;
+	        const renderer = this.renderer;
+	        const drawingBufferSize = renderer.getDrawingBufferSize(new three.Vector2());
 	        pass.setSize(drawingBufferSize.width, drawingBufferSize.height);
-	        pass.initialize(this.renderer, this.renderer.context.getContextAttributes().alpha || false);
+	        pass.initialize(renderer, renderer.context.getContextAttributes().alpha);
 	        if (index !== undefined) {
-	            this.passes.splice(index, 0, pass);
+	            passes.splice(index, 0, pass);
 	        }
 	        else {
-	            // tslint:disable-next-line:no-parameter-reassignment
-	            index = this.passes.push(pass) - 1;
+	            passes.push(pass);
 	        }
-	        if (pass.needsDepthTexture) {
-	            if (this.inputBuffer.depthTexture === null) {
-	                this.createDepthTexture(drawingBufferSize.width, drawingBufferSize.height);
+	        if (pass.needsDepthTexture || this.depthTexture !== null) {
+	            if (this.depthTexture === null) {
+	                const depthTexture = this.createDepthTexture();
+	                for (const p of passes) {
+	                    p.setDepthTexture(depthTexture);
+	                }
 	            }
-	            pass.setDepthTexture(this.getDepthTexture(index));
+	            else {
+	                pass.setDepthTexture(this.depthTexture);
+	            }
 	        }
 	    }
 	    /**
 	     * Removes a pass.
 	     */
 	    removePass(pass) {
-	        this.passes.splice(this.passes.indexOf(pass), 1);
+	        const passes = this.passes;
+	        const removed = passes.splice(passes.indexOf(pass), 1).length > 0;
+	        if (removed && this.depthTexture !== null) {
+	            const depthTextureRequired = passes.reduce((a, b) => a || b.needsDepthTexture, false);
+	            if (!depthTextureRequired) {
+	                this.depthTexture.dispose();
+	                this.depthTexture = null;
+	                this.inputBuffer.depthTexture = null;
+	                this.outputBuffer.depthTexture = null;
+	                for (const p of passes) {
+	                    p.setDepthTexture(null);
+	                }
+	            }
+	        }
 	    }
 	    /**
 	     * Renders all enabled passes in the order in which they were added.
@@ -5191,9 +5236,8 @@
 	     * updated with the current size of the renderer.
 	     */
 	    setSize(width, height) {
-	        let size;
 	        if (width === undefined || height === undefined) {
-	            size = this.renderer.getSize();
+	            const size = this.renderer.getSize(new three.Vector2());
 	            // tslint:disable-next-line:no-parameter-reassignment
 	            width = size.width;
 	            // tslint:disable-next-line:no-parameter-reassignment
@@ -5202,7 +5246,7 @@
 	        // Update the logical render size.
 	        this.renderer.setSize(width, height);
 	        // The drawing buffer size takes the device pixel ratio into account.
-	        const drawingBufferSize = this.renderer.getDrawingBufferSize();
+	        const drawingBufferSize = this.renderer.getDrawingBufferSize(new three.Vector2());
 	        this.inputBuffer.setSize(drawingBufferSize.width, drawingBufferSize.height);
 	        this.outputBuffer.setSize(drawingBufferSize.width, drawingBufferSize.height);
 	        for (const pass of this.passes) {
@@ -5218,6 +5262,7 @@
 	        // Reanimate.
 	        this.inputBuffer = renderTarget;
 	        this.outputBuffer = renderTarget.clone();
+	        this.depthTexture = null;
 	        this.copyPass = new ShaderPass(new CopyMaterial());
 	    }
 	    /**
@@ -5237,6 +5282,9 @@
 	        if (this.outputBuffer !== null) {
 	            this.outputBuffer.dispose();
 	            this.outputBuffer = null;
+	        }
+	        if (this.depthTexture !== null) {
+	            this.depthTexture.dispose();
 	        }
 	        this.copyPass.dispose();
 	    }
@@ -12321,7 +12369,7 @@
 		const demo = event.demo;
 
 		// Make sure that the main renderer is being used and update it just in case.
-		const size = composer.renderer.getSize();
+		const size = composer.getRenderer().getSize(new three.Vector2());
 		renderer.setSize(size.width, size.height);
 		composer.replaceRenderer(renderer);
 		composer.reset();

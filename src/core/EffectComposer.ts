@@ -71,7 +71,6 @@ export class EffectComposer implements Disposable, Resizable {
     private renderer: WebGLRenderer,
     partialOptions: Partial<EffectComposerOptions> = { }
   ) {
-
     const options: EffectComposerOptions = {
       depthBuffer: true,
       stencilBuffer: false,
