@@ -21,4 +21,4 @@ export interface IntegratedEffect {
  * @param attributes - The global, collective attributes.
  * @return The results.
  */
-export declare const integrateEffect: (prefix: string, effect: Effect<{}>, shaderParts: Map<string, string>, blendModes: Map<BlendFunction, BlendMode>, defines: Map<string, string>, uniforms: Map<string, Uniform>, attributes: EffectAttribute) => IntegratedEffect;
+export declare const integrateEffect: (prefix: string, effect: Effect, shaderParts: Map<string, string>, blendModes: Map<BlendFunction, BlendMode>, defines: Map<string, string>, uniforms: Map<string, Uniform>, attributes: EffectAttribute) => IntegratedEffect;
