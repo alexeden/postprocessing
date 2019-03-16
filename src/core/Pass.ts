@@ -114,8 +114,7 @@ export abstract class Pass implements Disposable, Initializable, Resizable {
   getFullscreenMaterialsOfType<T extends PostprocessingMaterial>(
     type: new (...args: any[]) => T
   ): T[] {
-    return this.getFullscreenMaterials()
-      .filter<T>((mat): mat is T => mat instanceof type);
+    return this.getFullscreenMaterials().filter<T>((mat): mat is T => mat instanceof type);
   }
 
 
