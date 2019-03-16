@@ -9,6 +9,7 @@ import {
   Texture,
   WebGLRenderTarget,
   WebGLRenderer,
+  EventDispatcher,
 } from 'three';
 import { BlendFunction } from '../../blending';
 import { Effect, EffectName } from '../../core';
@@ -36,6 +37,11 @@ export interface GlitchEffectOptions {
   strength: Vector2;
 }
 
+interface GlitchEffectEventMap {
+  glitchStart: { type: 'glitchStart' };
+  glitchEnd: { type: 'glitchEnd' };
+}
+
 export enum GlitchMode {
   /** No glitches. */
   DISABLED = 0,
@@ -52,7 +58,7 @@ export enum GlitchMode {
  * Reference: https://github.com/staffantan/unityglitch
  * Warning: This effect cannot be merged with convolution effects.
  */
-export class GlitchEffect extends Effect {
+export class GlitchEffect extends Effect implements Omit<EventDispatcher, 'dispatchEvent'> {
   /**
    * A label for generated data textures.
    */
@@ -84,6 +90,7 @@ export class GlitchEffect extends Effect {
    * A time accumulator.
    */
   private time: number;
+  private readonly dispatcher: EventDispatcher;
 
   constructor(
     {
@@ -112,6 +119,7 @@ export class GlitchEffect extends Effect {
 
     this.chromaticAberrationOffset = chromaticAberrationOffset;
     this.delay = delay;
+    this.dispatcher = new EventDispatcher();
     this.duration = duration;
     this.mode = GlitchMode.SPORADIC;
     this.ratio = ratio;
@@ -248,6 +256,22 @@ export class GlitchEffect extends Effect {
       }
     }
 
+    if (active !== this.uniforms.get('active')!.value) {
+      this.dispatcher.dispatchEvent.call(this, active ? { type: 'glitchStart' } : { type: 'glitchEnd' });
+    }
+
     this.uniforms.get('active')!.value = active;
+  }
+
+  addEventListener<K extends keyof GlitchEffectEventMap>(type: K, listener: (this: Effect, ev: GlitchEffectEventMap[K]) => void) {
+    this.dispatcher.addEventListener.call(this, type, listener);
+  }
+
+  hasEventListener<K extends keyof GlitchEffectEventMap>(type: K, listener: (this: Effect, ev: GlitchEffectEventMap[K]) => void) {
+    return this.dispatcher.hasEventListener.call(this, type, listener);
+  }
+
+  removeEventListener<K extends keyof GlitchEffectEventMap>(type: K, listener: (this: Effect, ev: GlitchEffectEventMap[K]) => void) {
+    this.dispatcher.removeEventListener.call(this, type, listener);
   }
 }

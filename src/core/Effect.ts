@@ -1,4 +1,4 @@
-import { Texture, WebGLRenderer, WebGLRenderTarget, EventDispatcher, Event } from 'three';
+import { Texture, WebGLRenderer, WebGLRenderTarget } from 'three';
 import { BlendFunction, BlendMode } from '../blending';
 import { Initializable, Resizable, Disposable, PreprocessorMacros, ShaderUniforms, EffectOptions } from './types';
 import { EffectAttribute, WebGLExtension, EffectName } from './constants';
@@ -7,16 +7,7 @@ import { EffectAttribute, WebGLExtension, EffectName } from './constants';
  * An abstract effect.
  * Effects can be combined using the {@link EffectPass}.
  */
-
-type EffectEvent = Event & { effect: EffectName };
-
-interface EffectEventMap {
-  [name: string]: EffectEvent;
-}
-
-export abstract class Effect<EventMap extends EffectEventMap = { }>
-  extends EventDispatcher
-  implements Initializable, Resizable, Disposable {
+export abstract class Effect implements Initializable, Resizable, Disposable {
   // tslint:disable-next-line:no-any
   [k: string]: any;
 
@@ -66,8 +57,6 @@ export abstract class Effect<EventMap extends EffectEventMap = { }>
     readonly fragmentShader: FragmentShader,
     partialOptions: Partial<EffectOptions> = { }
   ) {
-    super();
-
     const settings: EffectOptions = {
       attributes: EffectAttribute.NONE,
       blendFunction: BlendFunction.SCREEN,
@@ -84,27 +73,6 @@ export abstract class Effect<EventMap extends EffectEventMap = { }>
     this.extensions = settings.extensions;
     this.blendMode = new BlendMode(settings.blendFunction);
   }
-
-  addEventListener<K extends keyof EventMap>(type: K, listener: (this: Effect, ev: EventMap[K] & { effect: EffectName }) => void) {
-    super.addEventListener.call(this, type, listener);
-  }
-
-  hasEventListener<K extends keyof EventMap>(type: K, listener: (this: Effect, ev: EventMap[K] & { effect: EffectName }) => void) {
-    return super.hasEventListener.call(this, type, listener);
-  }
-
-  removeEventListener<K extends keyof EventMap>(type: K, listener: (this: Effect, ev: EventMap[K] & { effect: EffectName }) => void) {
-    super.removeEventListener.call(this, type, listener);
-  }
-
-  dispatchEvent<K extends keyof EventMap>(ev: EventMap[K]) {
-    super.dispatchEvent.call(this, { effect: this.name, ...ev });
-  }
-
-
-  // hasEventListener(type: string, listener: (this: Effect, event: Event) => void): boolean {
-  //   return super.hasEventListener.call(this, type, listener);
-  // }
 
   /**
    * @virtual Sets the depth texture.
