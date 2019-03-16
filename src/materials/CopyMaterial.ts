@@ -1,7 +1,7 @@
 import { ShaderMaterial, Uniform } from 'three';
 
-import fragment from './glsl/copy/shader.frag';
-import vertex from './glsl/common/shader.vert';
+import fragment from './glsl/copy.frag';
+import vertex from './glsl/common.vert';
 
 /**
  * A simple copy shader material.

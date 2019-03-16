@@ -1,6 +1,6 @@
 import { ShaderMaterial, Uniform, Vector2 } from 'three';
-import fragment from './glsl/smaa-weights/shader.frag';
-import vertex from './glsl/smaa-weights/shader.vert';
+import fragment from './glsl/smaa-weights.frag';
+import vertex from './glsl/smaa-weights.vert';
 
 /**
  * Subpixel Morphological Antialiasing.

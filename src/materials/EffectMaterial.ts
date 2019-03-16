@@ -1,8 +1,8 @@
 import { PerspectiveCamera, ShaderMaterial, Uniform, Vector2, Camera } from 'three';
 import { Resizable } from '../core';
 import { Section } from './lib';
-import fragmentTemplate from './glsl/effect/shader.frag';
-import vertexTemplate from './glsl/effect/shader.vert';
+import fragmentTemplate from './glsl/effect.frag';
+import vertexTemplate from './glsl/effect.vert';
 
 /**
  * An effect material for compound shaders.
