@@ -22,11 +22,11 @@ export interface GlitchEffectOptions {
     strength: Vector2;
 }
 interface GlitchEffectEventMap {
-    glitchStart: {
-        type: 'glitchStart';
+    glitchstart: {
+        type: 'glitchstart';
     };
-    glitchEnd: {
-        type: 'glitchEnd';
+    glitchend: {
+        type: 'glitchend';
     };
 }
 export declare enum GlitchMode {
