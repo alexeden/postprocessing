@@ -38,8 +38,8 @@ export interface GlitchEffectOptions {
 }
 
 interface GlitchEffectEventMap {
-  glitchStart: { type: 'glitchStart' };
-  glitchEnd: { type: 'glitchEnd' };
+  glitchstart: { type: 'glitchstart' };
+  glitchend: { type: 'glitchend' };
 }
 
 export enum GlitchMode {
@@ -257,7 +257,7 @@ export class GlitchEffect extends Effect implements Omit<EventDispatcher, 'dispa
     }
 
     if (active !== this.uniforms.get('active')!.value) {
-      this.dispatcher.dispatchEvent.call(this, active ? { type: 'glitchStart' } : { type: 'glitchEnd' });
+      this.dispatcher.dispatchEvent.call(this, active ? { type: 'glitchstart' } : { type: 'glitchend' });
     }
 
     this.uniforms.get('active')!.value = active;
