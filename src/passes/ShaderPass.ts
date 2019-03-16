@@ -1,6 +1,5 @@
 import { WebGLRenderer, WebGLRenderTarget } from 'three';
-import { PassName } from '../core';
-import { Pass } from './Pass';
+import { Pass, PassName } from '../core';
 import { PostprocessingMaterial } from '../materials';
 
 /**

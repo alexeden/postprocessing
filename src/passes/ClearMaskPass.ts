@@ -1,6 +1,5 @@
 import { WebGLRenderer } from 'three';
-import { PassName } from '../core';
-import { Pass } from './Pass';
+import { Pass, PassName } from '../core';
 
 /**
  * A pass that disables the stencil test.

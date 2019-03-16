@@ -1,7 +1,6 @@
 import { LinearFilter, WebGLRenderTarget, WebGLRenderer } from 'three';
 import { CopyMaterial } from '../materials';
-import { Pass } from './Pass';
-import { PassName } from '../core';
+import { Pass, PassName } from '../core';
 
 /**
  * A pass that renders the result from a previous pass to another render target.

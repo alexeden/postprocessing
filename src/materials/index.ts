@@ -1,5 +1,3 @@
-export * from './lib';
-
 // export { AdaptiveLuminanceMaterial } from './AdaptiveLuminanceMaterial';
 import { ColorEdgesMaterial } from './color-edges/ColorEdgesMaterial';
 // export { ConvolutionMaterial, KernelSize } from './ConvolutionMaterial';

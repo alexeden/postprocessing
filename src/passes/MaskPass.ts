@@ -1,7 +1,6 @@
 import { Scene, Camera, WebGLRenderer, WebGLRenderTarget } from 'three';
 import { ClearPass } from './ClearPass';
-import { PassName } from '../core';
-import { Pass } from './Pass';
+import { Pass, PassName } from '../core';
 
 /**
  * A mask pass.

@@ -1,7 +1,6 @@
 import { Scene, Camera, Material, WebGLRenderer, WebGLRenderTarget, DepthTexture } from 'three';
 import { ClearPass } from './ClearPass';
-import { Pass } from './Pass';
-import { PassName } from '../core';
+import { Pass, PassName } from '../core';
 
 export interface RenderPassOptions {
   /** An override material for the scene. */
