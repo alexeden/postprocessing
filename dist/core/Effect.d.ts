@@ -1,4 +1,4 @@
-import { Texture, WebGLRenderer, WebGLRenderTarget } from 'three';
+import { Texture, WebGLRenderer, WebGLRenderTarget, EventDispatcher, Event } from 'three';
 import { BlendMode } from '../blending';
 import { Initializable, Resizable, Disposable, PreprocessorMacros, ShaderUniforms, EffectOptions } from './types';
 import { EffectAttribute, WebGLExtension, EffectName } from './constants';
@@ -6,7 +6,13 @@ import { EffectAttribute, WebGLExtension, EffectName } from './constants';
  * An abstract effect.
  * Effects can be combined using the {@link EffectPass}.
  */
-export declare abstract class Effect implements Initializable, Resizable, Disposable {
+declare type EffectEvent = Event & {
+    effect: EffectName;
+};
+interface EffectEventMap {
+    [name: string]: EffectEvent;
+}
+export declare abstract class Effect<EventMap extends EffectEventMap = {}> extends EventDispatcher implements Initializable, Resizable, Disposable {
     readonly name: EffectName;
     readonly fragmentShader: FragmentShader;
     [k: string]: any;
@@ -47,6 +53,16 @@ export declare abstract class Effect implements Initializable, Resizable, Dispos
      */
     blendMode: BlendMode;
     constructor(name: EffectName, fragmentShader: FragmentShader, partialOptions?: Partial<EffectOptions>);
+    addEventListener<K extends keyof EventMap>(type: K, listener: (this: Effect, ev: EventMap[K] & {
+        effect: EffectName;
+    }) => void): void;
+    hasEventListener<K extends keyof EventMap>(type: K, listener: (this: Effect, ev: EventMap[K] & {
+        effect: EffectName;
+    }) => void): any;
+    removeEventListener<K extends keyof EventMap>(type: K, listener: (this: Effect, ev: EventMap[K] & {
+        effect: EffectName;
+    }) => void): void;
+    dispatchEvent<K extends keyof EventMap>(ev: EventMap[K]): void;
     /**
      * @virtual Sets the depth texture.
      *
@@ -110,3 +126,4 @@ export declare abstract class Effect implements Initializable, Resizable, Dispos
      */
     dispose(): void;
 }
+export {};
