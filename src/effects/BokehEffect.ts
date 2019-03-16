@@ -3,7 +3,7 @@ import { BlendFunction } from './blending/BlendFunction';
 import { EffectAttribute, EffectName } from './lib';
 import { Effect } from './Effect';
 
-import fragment from './glsl/bokeh/shader.frag';
+import fragment from './glsl/bokeh.frag';
 
 export interface BokehEffectOptions {
   /** The blend function of this effect. Default is BlendFunction.NORMAL. */

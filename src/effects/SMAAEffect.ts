@@ -19,8 +19,8 @@ import { Effect } from './Effect';
 import searchImageDataURL from '../images/smaa/searchImageDataURL';
 import areaImageDataURL from '../images/smaa/areaImageDataURL';
 
-import fragment from './glsl/smaa/shader.frag';
-import vertex from './glsl/smaa/shader.vert';
+import fragment from './glsl/smaa.frag';
+import vertex from './glsl/smaa.vert';
 
 
 /**

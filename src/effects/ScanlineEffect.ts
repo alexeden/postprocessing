@@ -1,7 +1,7 @@
 import { Uniform, Vector2 } from 'three';
 import { BlendFunction } from './blending';
 import { Effect } from './Effect';
-import fragment from './glsl/scanlines/shader.frag';
+import fragment from './glsl/scanlines.frag';
 import { EffectName } from './lib';
 
 export interface ScanlineEffectOptions {

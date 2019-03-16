@@ -1,8 +1,8 @@
 import { Uniform, Vector2, Vector3, Camera, WebGLRenderTarget, WebGLRenderer } from 'three';
 import { Effect } from './Effect';
 
-import fragment from './glsl/shock-wave/shader.frag';
-import vertex from './glsl/shock-wave/shader.vert';
+import fragment from './glsl/shock-wave.frag';
+import vertex from './glsl/shock-wave.vert';
 import { EffectName } from './lib';
 
 const HALF_PI = Math.PI * 0.5;

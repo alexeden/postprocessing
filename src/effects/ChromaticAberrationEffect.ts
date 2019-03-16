@@ -3,8 +3,8 @@ import { BlendFunction } from './blending/BlendFunction';
 import { EffectAttribute, EffectName } from './lib';
 import { Effect } from './Effect';
 
-import fragment from './glsl/chromatic-aberration/shader.frag';
-import vertex from './glsl/chromatic-aberration/shader.vert';
+import fragment from './glsl/chromatic-aberration.frag';
+import vertex from './glsl/chromatic-aberration.vert';
 
 
 export interface ChromaticAberrationEffectOptions {

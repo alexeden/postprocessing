@@ -1,6 +1,6 @@
 import { BlendFunction } from './blending/BlendFunction';
 import { Effect } from './Effect';
-import fragment from './glsl/noise/shader.frag';
+import fragment from './glsl/noise.frag';
 import { EffectName } from './lib';
 
 export interface NoiseEffectOptions {

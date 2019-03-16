@@ -12,7 +12,7 @@ import {
 } from 'three';
 import { BlendFunction } from './blending/BlendFunction';
 import { Effect } from './Effect';
-import fragment from './glsl/glitch/shader.frag';
+import fragment from './glsl/glitch.frag';
 import { EffectName } from './lib';
 import { randomFloat } from '../utils';
 

@@ -2,7 +2,7 @@ import { BlendFunction } from './blending/BlendFunction';
 import { Effect } from './Effect';
 import { EffectName } from './lib';
 
-import fragment from './glsl/color-average/shader.frag';
+import fragment from './glsl/color-average.frag';
 
 /**
  * A color average effect.

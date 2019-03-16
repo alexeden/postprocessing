@@ -3,7 +3,7 @@ import { BlendFunction } from './blending/BlendFunction';
 import { Effect } from './Effect';
 import { EffectName } from './lib';
 
-import fragment from './glsl/sepia/shader.frag';
+import fragment from './glsl/sepia.frag';
 
 export interface SepiaEffectOptions {
   /** The blend function of this effect. Default is BlendFunction.NORMAL. */
