@@ -12,9 +12,9 @@ import {
 import {
   Disposable,
   Initializable,
+  PassName,
   Resizable,
 } from '../core';
-import { PassName } from './lib';
 import { PostprocessingMaterial } from '../materials';
 
 /**

@@ -1,5 +1,5 @@
 import { WebGLRenderer } from 'three';
-import { PassName } from './lib';
+import { PassName } from '../core';
 import { Pass } from './Pass';
 
 /**

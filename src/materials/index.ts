@@ -1,15 +1,15 @@
 export * from './lib';
 
 // export { AdaptiveLuminanceMaterial } from './AdaptiveLuminanceMaterial';
-import { ColorEdgesMaterial } from './ColorEdgesMaterial';
+import { ColorEdgesMaterial } from './color-edges/ColorEdgesMaterial';
 // export { ConvolutionMaterial, KernelSize } from './ConvolutionMaterial';
-import { CopyMaterial } from './CopyMaterial';
+import { CopyMaterial } from './copy/CopyMaterial';
 // export { DepthComparisonMaterial } from './DepthComparisonMaterial';
-import { EffectMaterial } from './EffectMaterial';
-// export { GodRaysMaterial } from './GodRaysMaterial';
-// export { LuminanceMaterial } from './LuminanceMaterial';
-// export { OutlineEdgesMaterial } from './OutlineEdgesMaterial';
-import { SMAAWeightsMaterial } from './SMAAWeightsMaterial';
+import { EffectMaterial } from './effect/EffectMaterial';
+// export { GodRaysMaterial } from './god-rays/GodRaysMaterial';
+// export { LuminanceMaterial } from './luminance/LuminanceMaterial';
+// export { OutlineEdgesMaterial } from './outline-edges/OutlineEdgesMaterial';
+import { SMAAWeightsMaterial } from './smaa-weights/SMAAWeightsMaterial';
 
 export type PostprocessingMaterial
   = ColorEdgesMaterial

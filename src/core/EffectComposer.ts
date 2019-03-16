@@ -12,8 +12,7 @@ import {
 
 import { ClearMaskPass, MaskPass, ShaderPass, Pass } from '../passes';
 import { CopyMaterial } from '../materials';
-import { Disposable } from './Disposable';
-import { Resizable } from './Resizable';
+import { Disposable, Resizable } from './types';
 
 interface EffectComposerOptions {
   /**

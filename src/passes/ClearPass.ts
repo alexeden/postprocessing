@@ -1,6 +1,6 @@
 import { Color, WebGLRenderer, WebGLRenderTarget } from 'three';
 import { Pass } from './Pass';
-import { PassName } from './lib';
+import { PassName } from '../core';
 
 export interface ClearPassOptions {
   /** An override clear alpha. */
