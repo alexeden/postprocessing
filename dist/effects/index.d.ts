@@ -3,6 +3,7 @@ export { EffectComposer } from './EffectComposer';
 export { BokehEffect, BokehEffectOptions } from './bokeh/BokehEffect';
 export { ChromaticAberrationEffect, ChromaticAberrationEffectOptions } from './chromatic-aberration/ChromaticAberrationEffect';
 export { GlitchEffect, GlitchMode } from './glitch/GlitchEffect';
+export { MirrorEffect, MirrorEffectOptions } from './mirror/MirrorEffect';
 export { NoiseEffect, NoiseEffectOptions } from './noise/NoiseEffect';
 export { ScanlineEffect, ScanlineEffectOptions } from './scanline/ScanlineEffect';
 export { ShockWaveEffect, ShockWaveEffectOptions } from './shock-wave/ShockWaveEffect';
