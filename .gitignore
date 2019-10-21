@@ -65,3 +65,5 @@ node_modules
 *.tmp
 .rpt2_cache
 public/demo/**/*.d.ts
+
+.vscode
