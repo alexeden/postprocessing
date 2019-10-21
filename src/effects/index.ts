@@ -13,6 +13,7 @@ export { GlitchEffect, GlitchMode } from './glitch/GlitchEffect';
 // export { GodRaysEffect } from './god-rays/GodRaysEffect';
 // export { GridEffect } from './grid/GridEffect';
 // export { HueSaturationEffect } from './hue-saturation/HueSaturationEffect';
+export { MirrorEffect, MirrorEffectOptions } from './mirror/MirrorEffect';
 export { NoiseEffect, NoiseEffectOptions } from './noise/NoiseEffect';
 // export { OutlineEffect } from './outline/OutlineEffect';
 // export { PixelationEffect } from './pixelation/PixelationEffect';

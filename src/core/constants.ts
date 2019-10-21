@@ -22,6 +22,7 @@ export enum EffectName {
   ChromaticAberration = 'ChromaticAberrationEffect',
   ColorAverage = 'ColorAverageEffect',
   Glitch = 'GlitchEffect',
+  Mirror = 'MirrorEffect',
   Noise = 'NoiseEffect',
   Scanline = 'ScanlineEffect',
   Sepia = 'SepiaEffect',
