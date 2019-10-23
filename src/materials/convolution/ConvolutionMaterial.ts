@@ -3,7 +3,6 @@ import { ShaderMaterial, Uniform, Vector2 } from 'three';
 import fragment from './convolution.frag';
 import vertex from './convolution.vert';
 
-
 /**
  * A kernel size enumeration.
  */
@@ -34,7 +33,6 @@ const kernelPresets = [
   new Float32Array([0.0, 1.0, 2.0, 3.0, 4.0, 5.0, 7.0, 8.0, 9.0, 10.0]),
 ];
 
-
 /**
  * An optimised convolution shader material.
  *
@@ -50,65 +48,44 @@ const kernelPresets = [
  */
 export class ConvolutionMaterial extends ShaderMaterial {
   /**
+   * The current kernel size.
+   */
+  kernelSize = KernelSize.LARGE;
+
+  /**
    * Constructs a new convolution material.
-   *
    * @param [texelSize] - The absolute screen texel size.
    */
   constructor(texelSize = new Vector2()) {
-
     super({
       uniforms: {
         inputBuffer: new Uniform(null),
         texelSize: new Uniform(new Vector2()),
         halfTexelSize: new Uniform(new Vector2()),
         kernel: new Uniform(0.0),
-
       },
-
       fragmentShader: fragment,
       vertexShader: vertex,
-
       depthWrite: false,
       depthTest: false,
-
     });
-
     this.setTexelSize(texelSize.x, texelSize.y);
-
-    /**
-     * The current kernel size.
-     *
-     * @type {KernelSize}
-     */
-
-    this.kernelSize = KernelSize.LARGE;
-
   }
 
   /**
    * Returns the kernel.
-   *
-   * @return {Float32Array} The kernel.
    */
-
   getKernel() {
-
     return kernelPresets[this.kernelSize];
-
   }
 
   /**
    * Sets the texel size.
-   *
-   * @param {Number} x - The texel width.
-   * @param {Number} y - The texel height.
+   * @param x - The texel width.
+   * @param y - The texel height.
    */
-
-  setTexelSize(x, y) {
-
+  setTexelSize(x: number, y: number) {
     this.uniforms.texelSize.value.set(x, y);
     this.uniforms.halfTexelSize.value.set(x, y).multiplyScalar(0.5);
-
   }
-
 }
