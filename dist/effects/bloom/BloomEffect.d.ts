@@ -9,8 +9,6 @@ export interface BloomEffectOptions {
     luminanceThreshold: number;
     /** Controls the smoothness of the luminance threshold. Range is [0, 1]. */
     luminanceSmoothing: number;
-    /** Deprecated. Use height or width instead. */
-    resolutionScale: number;
     /** The render width. */
     width: number;
     /** The render height. */
@@ -41,7 +39,7 @@ export declare class BloomEffect extends Effect {
     /**
      * Constructs a new bloom effect.
      */
-    constructor({ blendFunction, luminanceThreshold, luminanceSmoothing, resolutionScale, width, height, kernelSize, }?: Partial<BloomEffectOptions>);
+    constructor({ blendFunction, luminanceThreshold, luminanceSmoothing, width, height, kernelSize, }?: Partial<BloomEffectOptions>);
     /**
      * A texture that contains the intermediate result of this effect.
      *
@@ -49,7 +47,7 @@ export declare class BloomEffect extends Effect {
      */
     get texture(): import("three").Texture;
     /** The luminance material. */
-    get luminanceMaterial(): import("../../materials").ColorEdgesMaterial | import("../../materials").ConvolutionMaterial | import("../../materials").CopyMaterial | import("../../materials").EffectMaterial | LuminanceMaterial | import("../../materials").SMAAWeightsMaterial | import("../../materials").PostprocessingMaterial[] | null;
+    get luminanceMaterial(): LuminanceMaterial;
     /** The current width of the internal render targets. */
     get width(): number;
     /**

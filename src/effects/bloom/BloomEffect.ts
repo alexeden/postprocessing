@@ -96,8 +96,8 @@ export class BloomEffect extends Effect {
   }
 
   /** The luminance material. */
-  get luminanceMaterial() {
-    return this.luminancePass.getFullscreenMaterial();
+  get luminanceMaterial(): LuminanceMaterial {
+    return this.luminancePass.getFullscreenMaterial() as LuminanceMaterial;
   }
 
   /** The current width of the internal render targets. */
