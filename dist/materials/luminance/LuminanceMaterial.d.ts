@@ -7,7 +7,7 @@ import { ShaderMaterial, Vector2 } from 'three';
  * colours that are scaled with their respective luminance value. Additionally,
  * a range may be provided to mask out undesired texels.
  *
- * The alpha channel will remain unaffected in all cases.
+ * The alpha channel always contains the luminance value.
  *
  * On luminance coefficients:
  *  http://www.poynton.com/notes/colour_and_gamma/ColorFAQ.html#RTFToC9
@@ -26,14 +26,27 @@ export declare class LuminanceMaterial extends ShaderMaterial {
      * @param [luminanceRange] - If provided, the shader will mask out texels that aren't in the specified luminance range.
      */
     constructor(colorOutput?: boolean, luminanceRange?: Vector2 | null);
+    /** The luminance threshold. */
+    get threshold(): any;
+    /** Sets the luminance threshold. */
+    set threshold(value: any);
+    /** The luminance threshold smoothing. */
+    get smoothing(): any;
+    /** Sets the luminance threshold smoothing. */
+    set smoothing(value: any);
+    /** Indicates whether the luminance threshold is enabled. */
+    get useThreshold(): boolean;
+    /** Enables or disables the luminance threshold. */
+    set useThreshold(value: boolean);
+    /** Indicates whether color output is enabled. */
+    get colorOutput(): boolean;
+    /** Enables or disables color output. */
+    set colorOutput(value: boolean);
+    /** Indicates whether luminance masking is enabled. */
+    get useRange(): boolean;
     /**
-     * Enables or disables color output.
-     * @param enabled - Whether color output should be enabled.
+     * Enables or disables luminance masking.
+     * If enabled, the threshold will be ignored.
      */
-    setColorOutputEnabled(enabled: boolean): void;
-    /**
-     * Enables or disables the luminance mask.
-     * @param enabled - Whether the luminance mask should be enabled.
-     */
-    setLuminanceRangeEnabled(enabled: boolean): void;
+    set useRange(value: boolean);
 }

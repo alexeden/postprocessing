@@ -1,14 +1,20 @@
 import { WebGLRenderTarget, WebGLRenderer } from 'three';
-import { KernelSize } from '../../materials';
+import { KernelSize, LuminanceMaterial } from '../../materials';
 import { BlendFunction } from '../../blending';
 import { Effect } from '../../core';
 export interface BloomEffectOptions {
     /** The blend function of this effect. */
     blendFunction: BlendFunction;
-    /** The luminance distinction factor. Raise this value to bring out the brighter elements in the scene. */
-    distinction: number;
-    /** The render texture resolution scale, relative to the main frame buffer size. */
+    /** The luminance threshold. Raise this value to mask out darker elements in the scene. Range is [0, 1]. */
+    luminanceThreshold: number;
+    /** Controls the smoothness of the luminance threshold. Range is [0, 1]. */
+    luminanceSmoothing: number;
+    /** Deprecated. Use height or width instead. */
     resolutionScale: number;
+    /** The render width. */
+    width: number;
+    /** The render height. */
+    height: number;
     /** The blur kernel size. */
     kernelSize: KernelSize;
 }
@@ -21,37 +27,47 @@ export interface BloomEffectOptions {
 export declare class BloomEffect extends Effect {
     /** A render target. */
     private readonly renderTarget;
-    /** A blur pass. */
+    /**
+     * A blur pass.
+     * Do not adjust the width or height of this pass directly. Use
+     * {@link width} or {@link height} instead.
+     */
     private readonly blurPass;
-    /** THe original resolution. */
-    private readonly resolution;
-    /** A luminance shader pass. */
+    /**
+     * A luminance shader pass.
+     * You may disable this pass to deactivate luminance filtering.
+     */
     private readonly luminancePass;
     /**
      * Constructs a new bloom effect.
      */
-    constructor({ blendFunction, distinction, resolutionScale, kernelSize, }?: Partial<BloomEffectOptions>);
+    constructor({ blendFunction, luminanceThreshold, luminanceSmoothing, resolutionScale, width, height, kernelSize, }?: Partial<BloomEffectOptions>);
     /**
      * A texture that contains the intermediate result of this effect.
      *
-     * This texture will be applied to the scene colors unless the blend function
-     * is set to `SKIP`.
+     * This texture will be applied to the scene colors unless the blend function is set to `SKIP`.
      */
     get texture(): import("three").Texture;
-    /** Indicates whether dithering is enabled. */
-    get dithering(): boolean;
-    /** Enables or disables dithering. */
-    set dithering(value: boolean);
-    /** The blur kernel size. */
-    get kernelSize(): KernelSize;
-    set kernelSize(value: KernelSize);
-    /** The luminance distinction factor. */
-    get distinction(): any;
-    set distinction(value: any);
-    /** Returns the current resolution scale. */
-    getResolutionScale(): number;
-    /** Sets the resolution scale. */
-    setResolutionScale(scale: number): void;
+    /** The luminance material. */
+    get luminanceMaterial(): import("../../materials").ColorEdgesMaterial | import("../../materials").ConvolutionMaterial | import("../../materials").CopyMaterial | import("../../materials").EffectMaterial | LuminanceMaterial | import("../../materials").SMAAWeightsMaterial | import("../../materials").PostprocessingMaterial[] | null;
+    /** The current width of the internal render targets. */
+    get width(): number;
+    /**
+     * Sets the render width.
+     *
+     * Use {@link BlurPass.AUTO_SIZE} to activate automatic sizing based on the
+     * render height and aspect ratio.
+     */
+    set width(value: number);
+    /** The current height of the internal render targets. */
+    get height(): number;
+    /**
+     * Sets the render height.
+     *
+     * Use {@link BlurPass.AUTO_SIZE} to activate automatic sizing based on the
+     * render width and aspect ratio.
+     */
+    set height(value: number);
     /**
      * Updates this effect.
      * @param renderer - The renderer.
@@ -60,6 +76,9 @@ export declare class BloomEffect extends Effect {
     update(renderer: WebGLRenderer, inputBuffer: WebGLRenderTarget): void;
     /**
      * Updates the size of internal render targets.
+     *
+     * @param width - The width.
+     * @param height - The height.
      */
     setSize(width: number, height: number): void;
     /**
