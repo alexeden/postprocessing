@@ -44,13 +44,15 @@ export class BloomEffect extends Effect {
 
   /**
    * A blur pass.
-   *
    * Do not adjust the width or height of this pass directly. Use
    * {@link width} or {@link height} instead.
    */
   private readonly blurPass: BlurPass;
-
-
+  /**
+   * A luminance shader pass.
+   * You may disable this pass to deactivate luminance filtering.
+   */
+  private readonly luminancePass: ShaderPass;
 
   /**
    * Constructs a new bloom effect.
@@ -81,23 +83,16 @@ export class BloomEffect extends Effect {
     this.renderTarget.texture.generateMipmaps = false;
     this.uniforms.get('texture')!.value = this.renderTarget.texture;
     this.blurPass = new BlurPass({ resolutionScale, width, height, kernelSize });
-    /**
-     * A luminance shader pass.
-     *
-     * You may disable this pass to deactivate luminance filtering.
-     *
-     * @type {ShaderPass}
-     */
+    const luminanceMaterial = new LuminanceMaterial(true);
+    luminanceMaterial.threshold = luminanceThreshold;
+    luminanceMaterial.smoothing = luminanceSmoothing;
     this.luminancePass = new ShaderPass(new LuminanceMaterial(true));
-    this.luminanceMaterial.threshold = luminanceThreshold;
-    this.luminanceMaterial.smoothing = luminanceSmoothing;
   }
 
   /**
    * A texture that contains the intermediate result of this effect.
    *
-   * This texture will be applied to the scene colors unless the blend function
-   * is set to `SKIP`.
+   * This texture will be applied to the scene colors unless the blend function is set to `SKIP`.
    */
   get texture() {
     return this.renderTarget.texture;
@@ -138,78 +133,6 @@ export class BloomEffect extends Effect {
   set height(value) {
     this.blurPass.height = value;
     this.renderTarget.setSize(this.width, this.height);
-  }
-
-  // /**
-  //  * Indicates whether dithering is enabled.
-  //  *
-  //  * @type {Boolean}
-  //  * @deprecated Use blurPass.dithering instead.
-  //  */
-  // get dithering() {
-  //   return this.blurPass.dithering;
-  // }
-  // /**
-  //  * Enables or disables dithering.
-  //  *
-  //  * @type {Boolean}
-  //  * @deprecated Use blurPass.dithering instead.
-  //  */
-  // set dithering(value) {
-  //   this.blurPass.dithering = value;
-  // }
-  // /**
-  //  * The blur kernel size.
-  //  *
-  //  * @type {KernelSize}
-  //  * @deprecated Use blurPass.kernelSize instead.
-  //  */
-  // get kernelSize() {
-  //   return this.blurPass.kernelSize;
-  // }
-  // /**
-  //  * @type {KernelSize}
-  //  * @deprecated Use blurPass.kernelSize instead.
-  //  */
-  // set kernelSize(value) {
-  //   this.blurPass.kernelSize = value;
-  // }
-
-  // /**
-  //  * @type {Number}
-  //  * @deprecated Use luminanceMaterial.threshold and luminanceMaterial.smoothing instead.
-  //  */
-  // get distinction() {
-  //   console.warn(this.name, 'The distinction field has been removed, use luminanceMaterial.threshold and luminanceMaterial.smoothing instead.');
-  //   return 1.0;
-  // }
-  // /**
-  //  * @type {Number}
-  //  * @deprecated Use luminanceMaterial.threshold and luminanceMaterial.smoothing instead.
-  //  */
-  // set distinction(value) {
-  //   console.warn(this.name, 'The distinction field has been removed, use luminanceMaterial.threshold and luminanceMaterial.smoothing instead.');
-  // }
-
-  // /**
-  //  * Returns the current resolution scale.
-  //  *
-  //  * @return {Number} The resolution scale.
-  //  * @deprecated Adjust the width or height instead.
-  //  */
-  // getResolutionScale() {
-  //   return this.blurPass.getResolutionScale();
-  // }
-
-  /**
-   * Sets the resolution scale.
-   * @param scale - The new resolution scale.
-   * @deprecated Adjust the width or height instead.
-   */
-  setResolutionScale(scale: number) {
-    const blurPass = this.blurPass;
-    blurPass.setResolutionScale(scale);
-    this.renderTarget.setSize(blurPass.width, blurPass.height);
   }
 
   /**
@@ -254,5 +177,4 @@ export class BloomEffect extends Effect {
       this.renderTarget.texture.format = RGBFormat;
     }
   }
-
 }
