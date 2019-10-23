@@ -31,6 +31,7 @@ export enum EffectName {
 }
 
 export enum PassName {
+  Blur = 'blur',
   Clear = 'clear',
   ClearMask = 'clearMask',
   Effect = 'effect',
