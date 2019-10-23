@@ -8,6 +8,7 @@ import {
   PassName,
   Resizable,
   Section,
+  WebGLExtension,
 } from '../core';
 import { BlendFunction } from '../blending';
 import { EffectMaterial } from '../materials';
@@ -103,7 +104,7 @@ export class EffectPass extends Pass implements Disposable, Initializable, Resiz
     const blendModes = new Map();
     const defines = new Map();
     const uniforms = new Map();
-    const extensions = new Set();
+    const extensions = new Set<WebGLExtension>();
 
     let id = 0;
     let varyings = 0;
