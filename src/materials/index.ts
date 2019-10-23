@@ -5,7 +5,7 @@ import { CopyMaterial } from './copy/CopyMaterial';
 // export { DepthComparisonMaterial } from './DepthComparisonMaterial';
 import { EffectMaterial } from './effect/EffectMaterial';
 // export { GodRaysMaterial } from './god-rays/GodRaysMaterial';
-// export { LuminanceMaterial } from './luminance/LuminanceMaterial';
+import { LuminanceMaterial } from './luminance/LuminanceMaterial';
 // export { OutlineEdgesMaterial } from './outline-edges/OutlineEdgesMaterial';
 import { SMAAWeightsMaterial } from './smaa-weights/SMAAWeightsMaterial';
 
@@ -14,6 +14,7 @@ export type PostprocessingMaterial
   | ConvolutionMaterial
   | CopyMaterial
   | EffectMaterial
+  | LuminanceMaterial
   | SMAAWeightsMaterial;
 
 export {
@@ -22,5 +23,6 @@ export {
   CopyMaterial,
   EffectMaterial,
   KernelSize,
+  LuminanceMaterial,
   SMAAWeightsMaterial,
 };
