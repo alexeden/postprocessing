@@ -1,7 +1,7 @@
 export { EffectPass } from './EffectPass';
 export { EffectComposer } from './EffectComposer';
 
-// export { BloomEffect } from './BloomEffect';
+export { BloomEffect } from './bloom/BloomEffect';
 export { BokehEffect, BokehEffectOptions } from './bokeh/BokehEffect';
 // export { BrightnessContrastEffect } from './brightness-contrast/BrightnessContrastEffect';
 // export { ColorAverageEffect } from './color-average/ColorAverageEffect';

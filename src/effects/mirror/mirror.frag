@@ -1,4 +1,4 @@
-uniform sampler2D tDiffuse;
+uniform sampler2D inputBuffer;
 uniform int side;
 varying vec2 vUv;
 
@@ -16,6 +16,6 @@ void main() {
     else if (side == 3) {
       if (p.y > 0.5) p.y = 1.0 - p.y;
     }
-    vec4 color = texture2D(tDiffuse, p);
+    vec4 color = texture2D(inputBuffer, p);
     gl_FragColor = color;
 }
