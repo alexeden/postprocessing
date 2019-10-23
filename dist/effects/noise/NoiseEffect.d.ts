@@ -11,9 +11,10 @@ export declare class NoiseEffect extends Effect {
     /**
      * Indicates whether the noise should be multiplied with the input color.
      */
+    get premultiply(): boolean;
     /**
-    * Enables or disables noise premultiplication.
-    * You'll need to call {@link EffectPass#recompile} after changing this value.
-    */
-    premultiply: boolean;
+     * Enables or disables noise premultiplication.
+     * You'll need to call {@link EffectPass#recompile} after changing this value.
+     */
+    set premultiply(value: boolean);
 }

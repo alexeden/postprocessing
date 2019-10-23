@@ -1,3 +1,4 @@
+export { BlurPass } from './BlurPass';
 export { ClearMaskPass } from './ClearMaskPass';
 export { ClearPass } from './ClearPass';
 export { MaskPass } from './MaskPass';

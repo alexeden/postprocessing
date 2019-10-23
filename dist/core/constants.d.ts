@@ -16,6 +16,7 @@ export declare enum EffectAttribute {
     CONVOLUTION = 2
 }
 export declare enum EffectName {
+    Bloom = "BloomEffect",
     Bokeh = "BokehEffect",
     ChromaticAberration = "ChromaticAberrationEffect",
     ColorAverage = "ColorAverageEffect",
@@ -28,6 +29,7 @@ export declare enum EffectName {
     SMAA = "SMAAEffect"
 }
 export declare enum PassName {
+    Blur = "blur",
     Clear = "clear",
     ClearMask = "clearMask",
     Effect = "effect",

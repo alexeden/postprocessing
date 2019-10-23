@@ -20,10 +20,11 @@ export declare class MaskPass extends Pass {
     /**
      * Indicates whether this pass should clear the stencil buffer.
      */
+    get clear(): boolean;
     /**
-    * Enables or disables auto clear.
-    */
-    clear: boolean;
+     * Enables or disables auto clear.
+     */
+    set clear(value: boolean);
     /**
      * Renders the effect.
      *

@@ -36,11 +36,12 @@ export declare class EffectPass extends Pass implements Disposable, Initializabl
      * Indicates whether dithering is enabled.
      * Color quantization reduces banding artifacts but degrades performance.
      */
+    get dithering(): boolean;
     /**
-    * Enables or disables dithering.
-    * Note that some effects have their own dithering setting.
-    */
-    dithering: boolean;
+     * Enables or disables dithering.
+     * Note that some effects have their own dithering setting.
+     */
+    set dithering(value: boolean);
     /**
      * Creates a compound shader material.
      *

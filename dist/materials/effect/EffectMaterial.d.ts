@@ -19,15 +19,16 @@ export declare class EffectMaterial extends ShaderMaterial implements Resizable 
     /**
      * The current depth packing.
      */
+    get depthPacking(): number;
     /**
-    * Sets the depth packing.
-    *
-    * Use `BasicDepthPacking` or `RGBADepthPacking` if your depth texture
-    * contains packed depth.
-    *
-    * You'll need to call {@link EffectPass#recompile} after changing this value.
-    */
-    depthPacking: number;
+     * Sets the depth packing.
+     *
+     * Use `BasicDepthPacking` or `RGBADepthPacking` if your depth texture
+     * contains packed depth.
+     *
+     * You'll need to call {@link EffectPass#recompile} after changing this value.
+     */
+    set depthPacking(value: number);
     /**
      * Sets the resolution.
      */

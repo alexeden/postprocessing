@@ -13,5 +13,6 @@ export declare class ChromaticAberrationEffect extends Effect {
     /**
      * The color offset.
      */
-    offset: Vector2;
+    get offset(): Vector2;
+    set offset(value: Vector2);
 }

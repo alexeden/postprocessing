@@ -62,7 +62,7 @@ export declare class SMAAEffect extends Effect {
      * searchImage.addEventListener("load", progress);
      * searchImage.src = SMAAEffect.searchImageDataURL;
      */
-    static readonly searchImageDataURL: string;
+    static get searchImageDataURL(): string;
     /**
      * The SMAA area image, encoded as a base64 data URL.
      *
@@ -74,5 +74,5 @@ export declare class SMAAEffect extends Effect {
      * areaImage.addEventListener("load", progress);
      * areaImage.src = SMAAEffect.areaImageDataURL;
      */
-    static readonly areaImageDataURL: string;
+    static get areaImageDataURL(): string;
 }

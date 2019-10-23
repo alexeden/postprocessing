@@ -32,10 +32,11 @@ export declare class RenderPass extends Pass {
     /**
      * Indicates whether the target buffer should be cleared before rendering.
      */
+    get clear(): boolean;
     /**
-    * Enables or disables auto clear.
-    */
-    clear: boolean;
+     * Enables or disables auto clear.
+     */
+    set clear(value: boolean);
     /**
      * Returns the clear pass.
      */

@@ -79,7 +79,7 @@ export declare class GlitchEffect extends Effect implements Omit<EventDispatcher
     /**
      * Indicates whether the glitch effect is currently active.
      */
-    readonly active: boolean;
+    get active(): boolean;
     /**
      * Returns the current perturbation map.
      */

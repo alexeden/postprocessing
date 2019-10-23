@@ -1,5 +1,6 @@
 export { EffectPass } from './EffectPass';
 export { EffectComposer } from './EffectComposer';
+export { BloomEffect } from './bloom/BloomEffect';
 export { BokehEffect, BokehEffectOptions } from './bokeh/BokehEffect';
 export { ChromaticAberrationEffect, ChromaticAberrationEffectOptions } from './chromatic-aberration/ChromaticAberrationEffect';
 export { GlitchEffect, GlitchMode } from './glitch/GlitchEffect';
