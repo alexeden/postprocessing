@@ -18,6 +18,7 @@ export enum EffectAttribute {
 }
 
 export enum EffectName {
+  Bloom = 'BloomEffect',
   Bokeh = 'BokehEffect',
   ChromaticAberration = 'ChromaticAberrationEffect',
   ColorAverage = 'ColorAverageEffect',

@@ -34,7 +34,7 @@ export class BlurPass extends Pass {
   private readonly ditheredConvolutionMaterial: ConvolutionMaterial;
 
   /** Whether the blurred result should also be dithered using noise. */
-  readonly dithering: boolean;
+  dithering: boolean;
 
   /**
    * Constructs a new blur pass.

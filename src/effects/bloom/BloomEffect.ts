@@ -4,14 +4,24 @@ import {
   Uniform,
   Vector2,
   WebGLRenderTarget,
+  WebGLRenderer,
 } from 'three';
-
 import { KernelSize, LuminanceMaterial } from '../../materials';
 import { BlurPass, ShaderPass } from '../../passes';
 import { BlendFunction } from '../../blending';
-import { Effect } from '../../core';
-
+import { Effect, EffectName } from '../../core';
 import fragment from '../texture/texture.frag';
+
+export interface BloomEffectOptions {
+  /** The blend function of this effect. */
+  blendFunction: BlendFunction;
+  /** The luminance distinction factor. Raise this value to bring out the brighter elements in the scene. */
+  distinction: number;
+  /** The render texture resolution scale, relative to the main frame buffer size. */
+  resolutionScale: number;
+  /** The blur kernel size. */
+  kernelSize: KernelSize;
+}
 
 /**
  * A bloom effect.
@@ -19,37 +29,34 @@ import fragment from '../texture/texture.frag';
  * This effect uses the fast Kawase convolution technique and a luminance filter
  * to blur bright highlights.
  */
-
 export class BloomEffect extends Effect {
+  /** A render target. */
+  private readonly renderTarget: WebGLRenderTarget;
+
+  /** A blur pass. */
+  private readonly blurPass: BlurPass;
+
+  /** THe original resolution. */
+  private readonly resolution: Vector2;
+
+  /** A luminance shader pass. */
+  private readonly luminancePass: ShaderPass;
 
   /**
    * Constructs a new bloom effect.
-   *
-   * @param {Object} [options] - The options.
-   * @param {BlendFunction} [options.blendFunction=BlendFunction.SCREEN] - The blend function of this effect.
-   * @param {Number} [options.distinction=1.0] - The luminance distinction factor. Raise this value to bring out the brighter elements in the scene.
-   * @param {Number} [options.resolutionScale=0.5] - The render texture resolution scale, relative to the main frame buffer size.
-   * @param {KernelSize} [options.kernelSize=KernelSize.LARGE] - The blur kernel size.
    */
-
-  constructor({ blendFunction = BlendFunction.SCREEN, distinction = 1.0, resolutionScale = 0.5, kernelSize = KernelSize.LARGE } = { }) {
-
-    super('BloomEffect', fragment, {
-
+  constructor({
+    blendFunction = BlendFunction.SCREEN,
+    distinction = 1.0,
+    resolutionScale = 0.5,
+    kernelSize = KernelSize.LARGE,
+  }: Partial<BloomEffectOptions> = { }) {
+    super(EffectName.Bloom, fragment, {
       blendFunction,
-
       uniforms: new Map([
         ['texture', new Uniform(null)],
       ]),
-
     });
-
-    /**
-     * A render target.
-     *
-     * @type {WebGLRenderTarget}
-     * @private
-     */
 
     this.renderTarget = new WebGLRenderTarget(1, 1, {
       minFilter: LinearFilter,
@@ -57,41 +64,13 @@ export class BloomEffect extends Effect {
       stencilBuffer: false,
       depthBuffer: false,
     });
-
     this.renderTarget.texture.name = 'Bloom.Target';
     this.renderTarget.texture.generateMipmaps = false;
-
-    this.uniforms.get('texture').value = this.renderTarget.texture;
-
-    /**
-     * A blur pass.
-     *
-     * @type {BlurPass}
-     * @private
-     */
-
+    this.uniforms.get('texture')!.value = this.renderTarget.texture;
     this.blurPass = new BlurPass({ resolutionScale, kernelSize });
-
-    /**
-     * The original resolution.
-     *
-     * @type {Vector2}
-     * @private
-     */
-
     this.resolution = new Vector2();
-
-    /**
-     * A luminance shader pass.
-     *
-     * @type {ShaderPass}
-     * @private
-     */
-
     this.luminancePass = new ShaderPass(new LuminanceMaterial(true));
-
     this.distinction = distinction;
-
   }
 
   /**
@@ -99,162 +78,89 @@ export class BloomEffect extends Effect {
    *
    * This texture will be applied to the scene colors unless the blend function
    * is set to `SKIP`.
-   *
-   * @type {Texture}
    */
-
   get texture() {
-
     return this.renderTarget.texture;
-
   }
 
-  /**
-   * Indicates whether dithering is enabled.
-   *
-   * @type {Boolean}
-   */
-
+  /** Indicates whether dithering is enabled. */
   get dithering() {
-
     return this.blurPass.dithering;
-
   }
 
-  /**
-   * Enables or disables dithering.
-   *
-   * @type {Boolean}
-   */
-
-  set dithering(value) {
-
+  /** Enables or disables dithering. */
+  set dithering(value: boolean) {
     this.blurPass.dithering = value;
-
   }
 
-  /**
-   * The blur kernel size.
-   *
-   * @type {KernelSize}
-   */
-
+  /** The blur kernel size. */
   get kernelSize() {
-
     return this.blurPass.kernelSize;
-
   }
 
-  /**
-   * @type {KernelSize}
-   */
-
-  set kernelSize(value) {
-
+  set kernelSize(value: KernelSize) {
     this.blurPass.kernelSize = value;
-
   }
 
-  /**
-   * The luminance distinction factor.
-   *
-   * @type {Number}
-   */
-
+  /** The luminance distinction factor. */
   get distinction() {
+    const luminanceMaterial = this.luminancePass.getFullscreenMaterial() as LuminanceMaterial;
 
-    return this.luminancePass.getFullscreenMaterial().uniforms.distinction.value;
-
+    return luminanceMaterial.uniforms.distinction.value;
   }
 
-  /**
-   * @type {Number}
-   */
-
-  set distinction(value = 1.0) {
-
-    this.luminancePass.getFullscreenMaterial().uniforms.distinction.value = value;
-
+  set distinction(value) {
+    const luminanceMaterial = this.luminancePass.getFullscreenMaterial() as LuminanceMaterial;
+    luminanceMaterial.uniforms.distinction.value = value ?? 1.0;
   }
 
-  /**
-   * Returns the current resolution scale.
-   *
-   * @return {Number} The resolution scale.
-   */
-
+  /** Returns the current resolution scale. */
   getResolutionScale() {
-
     return this.blurPass.getResolutionScale();
-
   }
 
-  /**
-   * Sets the resolution scale.
-   *
-   * @param {Number} scale - The new resolution scale.
-   */
-
-  setResolutionScale(scale) {
-
+  /** Sets the resolution scale. */
+  setResolutionScale(scale: number) {
     this.blurPass.setResolutionScale(scale);
     this.setSize(this.resolution.x, this.resolution.y);
-
   }
 
   /**
    * Updates this effect.
-   *
-   * @param {WebGLRenderer} renderer - The renderer.
-   * @param {WebGLRenderTarget} inputBuffer - A frame buffer that contains the result of the previous pass.
-   * @param {Number} [deltaTime] - The time between the last frame and the current one in seconds.
+   * @param renderer - The renderer.
+   * @param inputBuffer - A frame buffer that contains the result of the previous pass.
    */
-
-  update(renderer, inputBuffer, deltaTime) {
-
+  update(
+    renderer: WebGLRenderer,
+    inputBuffer: WebGLRenderTarget
+  ) {
     const renderTarget = this.renderTarget;
-
     this.luminancePass.render(renderer, inputBuffer, renderTarget);
     this.blurPass.render(renderer, renderTarget, renderTarget);
-
   }
 
   /**
    * Updates the size of internal render targets.
-   *
-   * @param {Number} width - The width.
-   * @param {Number} height - The height.
    */
-
-  setSize(width, height) {
-
+  setSize(width: number, height: number) {
     this.resolution.set(width, height);
     this.blurPass.setSize(width, height);
-
+    // tslint:disable-next-line: no-parameter-reassignment
     width = this.blurPass.width;
+    // tslint:disable-next-line: no-parameter-reassignment
     height = this.blurPass.height;
-
     this.renderTarget.setSize(width, height);
-
   }
 
   /**
    * Performs initialization tasks.
-   *
-   * @param {WebGLRenderer} renderer - The renderer.
-   * @param {Boolean} alpha - Whether the renderer uses the alpha channel or not.
+   * @param renderer - The renderer.
+   * @param alpha - Whether the renderer uses the alpha channel or not.
    */
-
-  initialize(renderer, alpha) {
-
+  initialize(renderer: WebGLRenderer, alpha: boolean) {
     this.blurPass.initialize(renderer, alpha);
-
     if (!alpha) {
-
       this.renderTarget.texture.format = RGBFormat;
-
     }
-
   }
-
 }
