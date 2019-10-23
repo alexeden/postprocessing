@@ -73,6 +73,7 @@
 	},
 	"devDependencies": {
 		"@babel/core": "7.x.x",
+		"@babel/plugin-proposal-nullish-coalescing-operator": "^7.4.4",
 		"@babel/preset-env": "7.x.x",
 		"ava": "1.x.x",
 		"babel-loader": "^8.0.5",
@@ -104,7 +105,7 @@
 		"ts-loader": "^5.3.3",
 		"tslint": "^5.12.1",
 		"tslint-loader": "^3.5.4",
-		"typescript": "^3.2.4",
+		"typescript": "^3.8.0-dev.20191022",
 		"webpack": "^4.29.0",
 		"webpack-cli": "^3.2.1"
 	},
