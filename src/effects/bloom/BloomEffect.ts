@@ -20,8 +20,6 @@ export interface BloomEffectOptions {
   luminanceThreshold: number;
   /** Controls the smoothness of the luminance threshold. Range is [0, 1]. */
   luminanceSmoothing: number;
-  /** Deprecated. Use height or width instead. */
-  resolutionScale: number;
   /** The render width. */
   width: number;
   /** The render height. */
@@ -61,7 +59,6 @@ export class BloomEffect extends Effect {
     blendFunction = BlendFunction.SCREEN,
     luminanceThreshold = 0.9,
     luminanceSmoothing = 0.025,
-    resolutionScale = 0.5,
     width = AUTO_SIZE,
     height = AUTO_SIZE,
     kernelSize = KernelSize.LARGE,
@@ -82,7 +79,7 @@ export class BloomEffect extends Effect {
     this.renderTarget.texture.name = 'Bloom.Target';
     this.renderTarget.texture.generateMipmaps = false;
     this.uniforms.get('texture')!.value = this.renderTarget.texture;
-    this.blurPass = new BlurPass({ resolutionScale, width, height, kernelSize });
+    this.blurPass = new BlurPass({ width, height, kernelSize });
     const luminanceMaterial = new LuminanceMaterial(true);
     luminanceMaterial.threshold = luminanceThreshold;
     luminanceMaterial.smoothing = luminanceSmoothing;
