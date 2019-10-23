@@ -1,7 +1,7 @@
 import { ShaderMaterial, Uniform, Vector2 } from 'three';
 
-import fragment from './luminance.frag';
-import vertex from '../common/common.vert';
+import fragmentShader from './luminance.frag';
+import vertexShader from '../common/common.vert';
 
 /**
  * A luminance shader material.
@@ -11,7 +11,7 @@ import vertex from '../common/common.vert';
  * colours that are scaled with their respective luminance value. Additionally,
  * a range may be provided to mask out undesired texels.
  *
- * The alpha channel will remain unaffected in all cases.
+ * The alpha channel always contains the luminance value.
  *
  * On luminance coefficients:
  *  http://www.poynton.com/notes/colour_and_gamma/ColorFAQ.html#RTFToC9
@@ -33,45 +33,77 @@ export class LuminanceMaterial extends ShaderMaterial {
     colorOutput = false,
     luminanceRange: Vector2 | null = null
   ) {
-    const maskLuminance = (luminanceRange !== null);
+    const useRange = (luminanceRange !== null);
     super({
       uniforms: {
         inputBuffer: new Uniform(null),
-        distinction: new Uniform(1.0),
-        range: new Uniform(maskLuminance ? luminanceRange : new Vector2()),
+        threshold: new Uniform(0.0),
+        smoothing: new Uniform(1.0),
+        range: new Uniform(useRange ? luminanceRange : new Vector2()),
       },
-      fragmentShader: fragment,
-      vertexShader: vertex,
+      fragmentShader,
+      vertexShader,
+      depthWrite: false,
+      depthTest: false,
     });
-    this.setColorOutputEnabled(colorOutput);
-    this.setLuminanceRangeEnabled(maskLuminance);
+    this.colorOutput = colorOutput;
+    this.useThreshold = true;
+    this.useRange = useRange;
   }
 
-  /**
-   * Enables or disables color output.
-   * @param enabled - Whether color output should be enabled.
-   */
-  setColorOutputEnabled(enabled: boolean) {
-    if (enabled) {
-      this.defines.COLOR = '1';
-    }
-    else {
-      delete this.defines.COLOR;
-    }
+  /** The luminance threshold. */
+  get threshold() {
+    return this.uniforms.threshold.value;
+  }
+
+  /** Sets the luminance threshold. */
+  set threshold(value) {
+    this.uniforms.threshold.value = value;
+  }
+
+  /** The luminance threshold smoothing. */
+  get smoothing() {
+    return this.uniforms.smoothing.value;
+  }
+
+  /** Sets the luminance threshold smoothing. */
+  set smoothing(value) {
+    this.uniforms.smoothing.value = value;
+  }
+
+  /** Indicates whether the luminance threshold is enabled. */
+  get useThreshold() {
+    return (this.defines.THRESHOLD !== undefined);
+  }
+
+  /** Enables or disables the luminance threshold. */
+  set useThreshold(value) {
+    value ? (this.defines.THRESHOLD = '1') : (delete this.defines.THRESHOLD);
     this.needsUpdate = true;
   }
 
+  /** Indicates whether color output is enabled. */
+  get colorOutput() {
+    return (this.defines.COLOR !== undefined);
+  }
+
+  /** Enables or disables color output. */
+  set colorOutput(value) {
+    value ? (this.defines.COLOR = '1') : (delete this.defines.COLOR);
+    this.needsUpdate = true;
+  }
+
+  /** Indicates whether luminance masking is enabled. */
+  get useRange() {
+    return (this.defines.RANGE !== undefined);
+  }
+
   /**
-   * Enables or disables the luminance mask.
-   * @param enabled - Whether the luminance mask should be enabled.
+   * Enables or disables luminance masking.
+   * If enabled, the threshold will be ignored.
    */
-  setLuminanceRangeEnabled(enabled: boolean) {
-    if (enabled) {
-      this.defines.RANGE = '1';
-    }
-    else {
-      delete this.defines.RANGE;
-    }
+  set useRange(value) {
+    value ? (this.defines.RANGE = '1') : (delete this.defines.RANGE);
     this.needsUpdate = true;
   }
 }
