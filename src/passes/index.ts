@@ -1,4 +1,4 @@
-// export { BlurPass } from './BlurPass';
+export { BlurPass } from './BlurPass';
 export { ClearMaskPass } from './ClearMaskPass';
 export { ClearPass } from './ClearPass';
 // export { DepthPass } from './DepthPass';

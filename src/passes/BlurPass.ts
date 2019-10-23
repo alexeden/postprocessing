@@ -1,7 +1,6 @@
-import { LinearFilter, RGBFormat, Vector2, WebGLRenderTarget } from "three";
-import { ConvolutionMaterial, KernelSize } from "../materials";
-import { Pass } from "./Pass.js";
-import { PassName } from "../core";
+import { LinearFilter, RGBFormat, Vector2, WebGLRenderTarget, WebGLRenderer } from 'three';
+import { ConvolutionMaterial, KernelSize } from '../materials';
+import { Pass, PassName } from '../core';
 
 export interface BlurPassOptions {
   /** The render texture resolution scale, relative to the main frame buffer size. */
@@ -16,6 +15,26 @@ export interface BlurPassOptions {
  * Note: This pass allows the input and output buffer to be the same.
  */
 export class BlurPass extends Pass {
+  /** A render target. */
+  private readonly renderTargetX: WebGLRenderTarget;
+
+  /** A second render target. */
+  private readonly renderTargetY: WebGLRenderTarget;
+
+  /** The original resolution. */
+  private readonly resolution: Vector2;
+
+  /** The current resolution scale. */
+  private resolutionScale: number;
+
+  /** A convolution shader material. */
+  private readonly convolutionMaterial: ConvolutionMaterial;
+
+  /** A convolution shader material that uses dithering. */
+  private readonly ditheredConvolutionMaterial: ConvolutionMaterial;
+
+  /** Whether the blurred result should also be dithered using noise. */
+  readonly dithering: boolean;
 
   /**
    * Constructs a new blur pass.
@@ -23,172 +42,73 @@ export class BlurPass extends Pass {
   constructor({
     resolutionScale = 0.5,
     kernelSize = KernelSize.LARGE,
-  }: BlurPassOptions = {}) {
+  }: Partial<BlurPassOptions> = { }) {
 
     super(PassName.Blur);
-
-    /**
-     * A render target.
-     *
-     * @type {WebGLRenderTarget}
-     * @private
-     */
 
     this.renderTargetX = new WebGLRenderTarget(1, 1, {
       minFilter: LinearFilter,
       magFilter: LinearFilter,
       stencilBuffer: false,
-      depthBuffer: false
+      depthBuffer: false,
     });
-
-    this.renderTargetX.texture.name = "Blur.TargetX";
-
-    /**
-     * A second render target.
-     *
-     * @type {WebGLRenderTarget}
-     * @private
-     */
-
+    this.renderTargetX.texture.name = 'Blur.TargetX';
     this.renderTargetY = this.renderTargetX.clone();
-    this.renderTargetY.texture.name = "Blur.TargetY";
-
-    /**
-     * The original resolution.
-     *
-     * @type {Vector2}
-     * @private
-     */
-
+    this.renderTargetY.texture.name = 'Blur.TargetY';
     this.resolution = new Vector2();
-
-    /**
-     * The current resolution scale.
-     *
-     * @type {Number}
-     * @private
-     */
-
     this.resolutionScale = resolutionScale;
-
-    /**
-     * A convolution shader material.
-     *
-     * @type {ConvolutionMaterial}
-     * @private
-     */
-
     this.convolutionMaterial = new ConvolutionMaterial();
-
-    /**
-     * A convolution shader material that uses dithering.
-     *
-     * @type {ConvolutionMaterial}
-     * @private
-     */
-
     this.ditheredConvolutionMaterial = new ConvolutionMaterial();
     this.ditheredConvolutionMaterial.dithering = true;
-
-    /**
-     * Whether the blurred result should also be dithered using noise.
-     *
-     * @type {Boolean}
-     */
-
     this.dithering = false;
-
     this.kernelSize = kernelSize;
-
   }
 
-  /**
-   * The absolute width of the internal render targets.
-   *
-   * @type {Number}
-   */
-
+  /** The absolute width of the internal render targets. */
   get width() {
-
     return this.renderTargetX.width;
-
   }
 
-  /**
-   * The absolute height of the internal render targets.
-   *
-   * @type {Number}
-   */
-
+  /** The absolute height of the internal render targets. */
   get height() {
-
     return this.renderTargetX.height;
-
   }
 
-  /**
-   * The kernel size.
-   *
-   * @type {KernelSize}
-   */
-
+  /** The kernel size. */
   get kernelSize() {
-
     return this.convolutionMaterial.kernelSize;
-
   }
 
-  /**
-   * Sets the kernel size.
-   *
-   * @type {KernelSize}
-   */
-
-  set kernelSize(value) {
-
+  /** Sets the kernel size. */
+  set kernelSize(value: KernelSize) {
     this.convolutionMaterial.kernelSize = value;
     this.ditheredConvolutionMaterial.kernelSize = value;
-
   }
 
-  /**
-   * Returns the current resolution scale.
-   *
-   * @return {Number} The resolution scale.
-   */
-
+  /** Returns the current resolution scale. */
   getResolutionScale() {
-
     return this.resolutionScale;
-
   }
 
-  /**
-   * Sets the resolution scale.
-   *
-   * @param {Number} scale - The new resolution scale.
-   */
-
-  setResolutionScale(scale) {
-
+  /** Sets the resolution scale. */
+  setResolutionScale(scale: number) {
     this.resolutionScale = scale;
     this.setSize(this.resolution.x, this.resolution.y);
-
   }
 
   /**
    * Blurs the input buffer and writes the result to the output buffer. The
    * input buffer remains intact, unless its also the output buffer.
    *
-   * @param {WebGLRenderer} renderer - The renderer.
-   * @param {WebGLRenderTarget} inputBuffer - A frame buffer that contains the result of the previous pass.
-   * @param {WebGLRenderTarget} outputBuffer - A frame buffer that serves as the output render target unless this pass renders to screen.
-   * @param {Number} [deltaTime] - The time between the last frame and the current one in seconds.
-   * @param {Boolean} [stencilTest] - Indicates whether a stencil mask is active.
+   * @param renderer - The renderer.
+   * @param inputBuffer - A frame buffer that contains the result of the previous pass.
+   * @param outputBuffer - A frame buffer that serves as the output render target unless this pass renders to screen.
    */
-
-  render(renderer, inputBuffer, outputBuffer, deltaTime, stencilTest) {
-
+  render(
+    renderer: WebGLRenderer,
+    inputBuffer: WebGLRenderTarget,
+    outputBuffer: WebGLRenderTarget
+  ) {
     const scene = this.scene;
     const camera = this.camera;
 
@@ -200,14 +120,15 @@ export class BlurPass extends Pass {
     const kernel = material.getKernel();
 
     let lastRT = inputBuffer;
-    let destRT;
-    let i, l;
+    let destRT: WebGLRenderTarget;
+    let i: number;
+    let l: number;
 
     this.setFullscreenMaterial(material);
 
     // Apply the multi-pass blur.
-    for(i = 0, l = kernel.length - 1; i < l; ++i) {
-
+    // tslint:disable-next-line: ban-comma-operator
+    for (i = 0, l = kernel.length - 1; i < l; ++i) {
       // Alternate between targets.
       destRT = ((i % 2) === 0) ? renderTargetX : renderTargetY;
 
@@ -217,36 +138,29 @@ export class BlurPass extends Pass {
       renderer.render(scene, camera);
 
       lastRT = destRT;
-
     }
 
-    if(this.dithering) {
-
+    if (this.dithering) {
       material = this.ditheredConvolutionMaterial;
       uniforms = material.uniforms;
       this.setFullscreenMaterial(material);
-
     }
 
     uniforms.kernel.value = kernel[i];
     uniforms.inputBuffer.value = lastRT.texture;
-    renderer.setRenderTarget(this.renderToScreen ? null : outputBuffer);
+    renderer.setRenderTarget(this.renderToScreen ? undefined : outputBuffer);
     renderer.render(scene, camera);
-
   }
 
   /**
    * Updates the size of this pass.
-   *
-   * @param {Number} width - The width.
-   * @param {Number} height - The height.
    */
-
-  setSize(width, height) {
-
+  setSize(width: number, height: number) {
     this.resolution.set(width, height);
 
+    // tslint:disable-next-line: no-parameter-reassignment
     width = Math.max(1, Math.floor(width * this.resolutionScale));
+    // tslint:disable-next-line: no-parameter-reassignment
     height = Math.max(1, Math.floor(height * this.resolutionScale));
 
     this.renderTargetX.setSize(width, height);
@@ -254,25 +168,18 @@ export class BlurPass extends Pass {
 
     this.convolutionMaterial.setTexelSize(1.0 / width, 1.0 / height);
     this.ditheredConvolutionMaterial.setTexelSize(1.0 / width, 1.0 / height);
-
   }
 
   /**
    * Performs initialization tasks.
    *
-   * @param {WebGLRenderer} renderer - The renderer.
-   * @param {Boolean} alpha - Whether the renderer uses the alpha channel or not.
+   * @param renderer - The renderer.
+   * @param alpha - Whether the renderer uses the alpha channel or not.
    */
-
-  initialize(renderer, alpha) {
-
-    if(!alpha) {
-
+  initialize(renderer: WebGLRenderer, alpha: boolean) {
+    if (!alpha) {
       this.renderTargetX.texture.format = RGBFormat;
       this.renderTargetY.texture.format = RGBFormat;
-
     }
-
   }
-
 }
