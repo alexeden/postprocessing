@@ -59,5 +59,5 @@ export declare class RenderPass extends Pass {
      * @param inputBuffer A frame buffer that contains the result of the previous pass.
      * @param outputBuffer - A frame buffer that serves as the output render target unless this pass renders to screen.
      */
-    render(renderer: WebGLRenderer, inputBuffer: WebGLRenderTarget, outputBuffer: WebGLRenderTarget): void;
+    render(renderer: WebGLRenderer, inputBuffer: WebGLRenderTarget | null, outputBuffer: WebGLRenderTarget | null): void;
 }

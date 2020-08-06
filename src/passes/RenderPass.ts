@@ -90,14 +90,14 @@ export class RenderPass extends Pass {
    */
   render(
     renderer: WebGLRenderer,
-    inputBuffer: WebGLRenderTarget,
-    outputBuffer: WebGLRenderTarget
+    inputBuffer: WebGLRenderTarget | null,
+    outputBuffer: WebGLRenderTarget | null
   ) {
     const scene = this.scene;
     const overrideMaterial = scene.overrideMaterial;
 
     if (this.depthTexture !== null && !this.renderToScreen) {
-      inputBuffer.depthTexture = this.depthTexture;
+      inputBuffer!.depthTexture = this.depthTexture;
       (outputBuffer as any).depthTexture = null;
     }
 

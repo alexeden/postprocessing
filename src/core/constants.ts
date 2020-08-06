@@ -37,6 +37,7 @@ export enum PassName {
   ClearMask = 'clearMask',
   Effect = 'effect',
   Mask = 'mask',
+  Normal = 'normal',
   Render = 'render',
   Save = 'save',
   Shader = 'shader',
