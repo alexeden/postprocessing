@@ -66,8 +66,8 @@ export class MaskPass extends Pass {
     const clearValue = 1 - writeValue;
 
     // Don't update color or depth.
-    state.buffers.color.setMask(0);
-    state.buffers.depth.setMask(0);
+    state.buffers.color.setMask(false);
+    state.buffers.depth.setMask(false);
 
     // Lock the buffers.
     state.buffers.color.setLocked(true);
